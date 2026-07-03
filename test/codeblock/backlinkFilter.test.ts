@@ -4,12 +4,6 @@
  * Tests exercise filterBacklinks() through its observable output only.
  * The three private helpers (parentFolder, inFolder, hasTag) are covered
  * by their effect on what paths survive the filter.
- *
- * A local structural copy of BacklinkBlockConfig is used here because the
- * real module (codeblock/BacklinkBlockConfig) is being built in parallel.
- * TypeScript structural typing ensures compatibility at merge time.
- *
- * TDD: these tests were written BEFORE the implementation.
  */
 
 import { describe, it, expect } from "vitest";

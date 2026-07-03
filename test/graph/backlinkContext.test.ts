@@ -188,4 +188,27 @@ describe("extractContext — window truncation", () => {
 		expect(result[0]!.before.startsWith("…")).toBe(true);
 		expect(result[0]!.before).not.toContain("ne"); // no partial "one"
 	});
+
+	it("before: window with no whitespace keeps the partial word (not just an ellipsis)", () => {
+		// A long unbroken token fills the whole window → snapForward finds no
+		// whitespace and returns the window unchanged; the partial text must survive.
+		const content = "supercalifragilistic[[Note]]";
+		const links: LinkOffset[] = [{ start: 20, end: 28 }];
+		const result = extractContext(content, links, 10);
+
+		expect(result[0]!.before.startsWith("…")).toBe(true);
+		expect(result[0]!.before).toBe("…ragilistic"); // partial word preserved
+		expect(result[0]!.before.length).toBeGreaterThan(1);
+	});
+
+	it("after: window with no whitespace keeps the partial word (not just an ellipsis)", () => {
+		// snapBackward finds no whitespace and returns the window unchanged.
+		const content = "[[Note]]supercalifragilistic";
+		const links: LinkOffset[] = [{ start: 0, end: 8 }];
+		const result = extractContext(content, links, 10);
+
+		expect(result[0]!.after.endsWith("…")).toBe(true);
+		expect(result[0]!.after).toBe("supercalif…"); // partial word preserved
+		expect(result[0]!.after.length).toBeGreaterThan(1);
+	});
 });

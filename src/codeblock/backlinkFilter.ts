@@ -75,8 +75,10 @@ export function filterBacklinks(
 		const folder = parentFolder(path);
 		const tags = deps.tagsOf(path);
 
-		if (config.folderInclude.length > 0 && !config.folderInclude.some((f) => inFolder(folder, f))) return false;
-		if (config.tagInclude.length > 0 && !config.tagInclude.some((t) => hasTag(tags, t))) return false;
+		if (config.folderInclude.length > 0
+			&& !config.folderInclude.some((f) => inFolder(folder, f))) return false;
+		if (config.tagInclude.length > 0
+			&& !config.tagInclude.some((t) => hasTag(tags, t))) return false;
 
 		if (config.folderExclude.some((f) => inFolder(folder, f))) return false;
 		if (config.tagExclude.some((t) => hasTag(tags, t))) return false;
