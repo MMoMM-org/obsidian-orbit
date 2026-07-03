@@ -107,6 +107,16 @@ export default defineConfig({
 					return fs.existsSync(`${updatedId}.ts`) ? `${updatedId}.ts` : updatedId;
 				},
 			},
+			{
+				find: /^codeblock(\/.*)?$/,
+				replacement: path.resolve(__dirname, "src/codeblock$1"),
+				customResolver(updatedId: string) {
+					if (fs.statSync(updatedId, { throwIfNoEntry: false })?.isDirectory()) {
+						return `${updatedId}/index.ts`;
+					}
+					return fs.existsSync(`${updatedId}.ts`) ? `${updatedId}.ts` : updatedId;
+				},
+			},
 		],
 	},
 	test: {
