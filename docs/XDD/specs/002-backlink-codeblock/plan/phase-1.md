@@ -1,6 +1,6 @@
 ---
 title: "Phase 1: Pure Core"
-status: pending
+status: completed
 version: "1.0"
 phase: 1
 ---
@@ -32,7 +32,7 @@ This phase delivers the three pure, Obsidian-free modules with full unit tests.
 It establishes the parse → filter → snippet capabilities the orchestrator wires
 in Phase 2.
 
-- [ ] **T1.1 Config parser (`BacklinkBlockConfig`)** `[activity: domain-modeling]` `[parallel: true]`
+- [x] **T1.1 Config parser (`BacklinkBlockConfig`)** `[activity: domain-modeling]` `[parallel: true]`
 
   1. Prime: Read the config interface + parsing rules `[ref: SDD/Internal API Changes → BacklinkBlockConfig.ts]` and `[ref: PRD/Feature 5]`.
   2. Test (RED): empty block → `{display:"compact", all lists empty, warnings:[]}`;
@@ -53,7 +53,7 @@ in Phase 2.
      - [ ] Unknown key / bad `display` produce warnings, never throw `[ref: PRD/AC Feature 5]`
      - [ ] Tag + folder values normalized per rules `[ref: SDD/Business Rules 3-4]`
 
-- [ ] **T1.2 Folder/tag filter (`backlinkFilter`)** `[activity: domain-modeling]` `[parallel: true]`
+- [x] **T1.2 Folder/tag filter (`backlinkFilter`)** `[activity: domain-modeling]` `[parallel: true]`
 
   1. Prime: Read the filter contract + traced walkthrough `[ref: SDD/Implementation Examples → Filter precedence]`.
   2. Test (RED): include-folder segment boundary (`Research` matches
@@ -73,7 +73,7 @@ in Phase 2.
      - [ ] Segment-boundary folder + nested-tag matching `[ref: SDD/Business Rules 3-4]`
      - [ ] Self-link + global exclusion removed, order preserved `[ref: PRD/AC Feature 1,2]`
 
-- [ ] **T1.3 Context snippet extractor (`backlinkContext`)** `[activity: domain-modeling]` `[parallel: true]`
+- [x] **T1.3 Context snippet extractor (`backlinkContext`)** `[activity: domain-modeling]` `[parallel: true]`
 
   1. Prime: Read the snippet contract + windowing example `[ref: SDD/Implementation Examples → Windowed context snippet]` and `[ref: SDD/Gotchas]` (char offsets).
   2. Test (RED): offset→line mapping at line boundaries; one snippet per link
@@ -91,7 +91,7 @@ in Phase 2.
      - [ ] Windowed, word-boundary-trimmed snippets with correct `…` `[ref: PRD/AC Feature 3]`
      - [ ] Same-line links deduped to one line `[ref: PRD/AC Feature 3 — same line]`
 
-- [ ] **T1.4 Phase Validation** `[activity: validate]`
+- [x] **T1.4 Phase Validation** `[activity: validate]`
 
   Run `npm test` (all three new suites), `npm run lint`, `npm run typecheck`.
   Verify no module imports `obsidian` (grep). Confirm signatures match the SDD
