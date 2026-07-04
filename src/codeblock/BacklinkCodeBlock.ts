@@ -16,7 +16,7 @@
  */
 
 import { MarkdownRenderChild, Keymap, debounce, getAllTags } from "obsidian";
-import type { App, Debouncer, TFile } from "obsidian";
+import type { App, TFile } from "obsidian";
 import { parseBacklinkBlockConfig } from "codeblock/BacklinkBlockConfig";
 import type { BacklinkBlockConfig } from "codeblock/BacklinkBlockConfig";
 import { filterBacklinks } from "codeblock/backlinkFilter";
@@ -77,8 +77,6 @@ export class BacklinkCodeBlock extends MarkdownRenderChild {
 	private readonly deps: BacklinkDeps;
 	/** Parsed once in onload(); never re-parsed on refresh. */
 	private config!: BacklinkBlockConfig;
-	/** Single per-instance trailing debouncer coalescing change events. */
-	private debouncer: Debouncer<[], void> | null = null;
 
 	constructor(
 		containerEl: HTMLElement,
@@ -102,7 +100,6 @@ export class BacklinkCodeBlock extends MarkdownRenderChild {
 			this.deps.getSettings().refreshDebounceMs,
 			true,
 		);
-		this.debouncer = debouncer;
 		this.register(() => debouncer.cancel());
 
 		const { app } = this.deps;

@@ -296,6 +296,18 @@ describe("BacklinkCodeBlock — empty states & warnings", () => {
 		);
 	});
 
+	it("shows 'No backlinks.' with no count header when the subject file is unresolved", () => {
+		const { block, container, app } = setup({ resolved: { "a.md": { "Subject.md": 1 } } });
+		// Force the subject path to resolve to null (transient rename / not yet indexed).
+		vi.mocked(app.vault.getFileByPath).mockImplementation(() => null);
+		block.onload();
+
+		expect(container.querySelector(".orbital-backlink-count")).toBeNull();
+		expect(container.querySelector(".orbital-backlink-empty")?.textContent).toBe(
+			"No backlinks.",
+		);
+	});
+
 	it("renders parser warnings as a subtle inline notice", () => {
 		const { block, container } = setup({
 			rawSource: "sort: name\n",
