@@ -5,8 +5,8 @@
 | Field | Value |
 |-------|-------|
 | **Created** | 2026-07-03 |
-| **Current Phase** | Ready |
-| **Last Updated** | 2026-07-03 |
+| **Current Phase** | Implemented |
+| **Last Updated** | 2026-07-04 |
 
 ## Documents
 
@@ -28,6 +28,7 @@
 | 2026-07-03 | Default order = index order (backlinksOf), not sorted | Stable/deterministic, matches Relations tab; explicit sort options parked |
 | 2026-07-03 | Filter engine is a new pure module, NOT ExclusionMatcher | ExclusionMatcher is regex + frontmatter-only; block needs simple folder-prefix + getAllTags (inline+frontmatter) matching |
 | 2026-07-03 | Validation PASS (spec-consistency + code-drift), spec → Ready | Full PRD→PLAN coverage, no contradictions, all code refs accurate; applied 3 clarity fixes (folder-normalization rules, same-line highlight contract via matchCount, explicit across-category AND EARS AC); open: verify getAllTags returns '#'-prefixed inline+frontmatter tags in Phase 1 |
+| 2026-07-04 | Implementation complete | All 3 phases shipped on branch feat/backlink-codeblock: 3 pure modules + BacklinkCodeBlock (MarkdownRenderChild) + main.ts registration + styles + docs. 79+21+12 = 112 new tests; full suite 745 green; build/lint/typecheck clean. Every phase passed spec-compliance + code-quality review. No drift. |
 
 ## Context
 

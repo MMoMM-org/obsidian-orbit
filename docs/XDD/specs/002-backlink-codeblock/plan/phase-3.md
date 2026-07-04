@@ -1,6 +1,6 @@
 ---
 title: "Phase 3: Integration, Docs & Validation"
-status: pending
+status: completed
 version: "1.0"
 phase: 3
 ---
@@ -32,7 +32,7 @@ say so); native-class reliance documented.
 This phase proves the feature end-to-end, documents it for users, and gates the
 whole spec on a green build.
 
-- [ ] **T3.1 End-to-end integration test** `[activity: test]`
+- [x] **T3.1 End-to-end integration test** `[activity: test]`
 
   1. Prime: Read `[ref: SDD/Runtime View → sequence]` and the obsidian mock
      capabilities.
@@ -51,7 +51,7 @@ whole spec on a green build.
      - [ ] Compact + context + filter + live-refresh + cleanup covered `[ref: PRD/AC Feature 1-5]`
      - [ ] Observable outcomes verified `[ref: PRD/Success Metrics → Tracking]`
 
-- [ ] **T3.2 User documentation** `[activity: documentation]`
+- [x] **T3.2 User documentation** `[activity: documentation]`
 
   1. Prime: Read the current `README.md` feature list and `docs/usage.md`
      structure; `[ref: PRD/User Journey]` for narrative.
@@ -69,7 +69,7 @@ whole spec on a green build.
   5. Success:
      - [ ] README + usage cover syntax, filters, modes, limits `[ref: PRD/User Journey]`
 
-- [ ] **T3.3 Final validation & spec close-out prep** `[activity: validate]`
+- [x] **T3.3 Final validation & spec close-out prep** `[activity: validate]`
 
   1. Prime: re-read the PRD acceptance criteria and SDD EARS list.
   2. Validate: run the full gate — `npm test`, `npm run lint`, `npm run typecheck`,
