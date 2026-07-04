@@ -135,7 +135,7 @@ every other option lives in the block's markdown source. A block's `style:` /
 
 **Context**: under each source note the block shows a windowed snippet (~90 characters on each side) of the line where the link appears, with the link text highlighted.
 
-- Each source has a **chevron**; click the chevron or the source title to fold/unfold that group. Start folded with `collapse: true` (or the setting).
+- Each source shows a **chevron**, its title, and the **number of times it links to this note** (right-aligned, like Obsidian's Linked mentions). Click the chevron or title to fold/unfold that group; start folded with `collapse: true` (or the setting).
 - **Click a context line to open** the source note scrolled to that line. Mod-click opens it in a new tab.
 - Choose the look with `style: dense` (default) or `style: cards` (or the **Context style** setting).
 - If a source note links to the containing note on **two different lines**, you see two snippets under that source.

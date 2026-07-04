@@ -336,6 +336,13 @@ export class BacklinkCodeBlock extends MarkdownRenderChild {
 			cls: "orbital-backlink-item-label",
 			text: this.displayName(path, file),
 		});
+		// Occurrence count for this source (matches native Linked-mentions): the
+		// number of links to the subject in this note = sum of per-line matchCount.
+		const occurrences = snippets.reduce((n, s) => n + s.matchCount, 0);
+		titleEl.createSpan({
+			cls: "orbital-backlink-group-count",
+			text: String(occurrences),
+		});
 		this.wireFold(title, group);
 		this.wireHover(title, path);
 

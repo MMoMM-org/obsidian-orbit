@@ -841,6 +841,20 @@
 	display: none;
 }
 
+/* Accent-coloured source title (mockup look). */
+.orbital-backlink-group-title .orbital-backlink-item-label {
+	color: var(--text-accent);
+}
+
+/* Per-source occurrence count, right-aligned (native Linked-mentions parity). */
+.orbital-backlink-group-count {
+	margin-left: auto;
+	padding-left: 8px;
+	color: var(--text-muted);
+	font-size: var(--font-smaller);
+	font-variant-numeric: tabular-nums;
+}
+
 /* Context lines are clickable (open note at that line). */
 .orbital-backlink-snippet {
 	cursor: pointer;
@@ -890,6 +904,12 @@
 
 .orbital-backlink-context--cards .orbital-backlink-group-title {
 	padding: 8px 12px;
+}
+
+.orbital-backlink-context--cards .orbital-backlink-group-count {
+	padding: 1px 8px;
+	border-radius: var(--radius-l);
+	background: var(--background-modifier-hover);
 }
 
 .orbital-backlink-context--cards .search-result-file-matches {

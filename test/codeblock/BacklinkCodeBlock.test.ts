@@ -565,6 +565,25 @@ describe("BacklinkCodeBlock — context styles, collapse & open-at-line (v1.1)",
 		expect(container.querySelector(".orbital-backlink-context--dense")).toBeNull();
 	});
 
+	it("shows the per-source occurrence count next to the title", async () => {
+		// Two links to the subject on one line → occurrence count of 2.
+		const twoOnLine = "See [[Subject]] and [[Subject]] again.";
+		const { block, container } = ctx({
+			contents: { "a.md": twoOnLine },
+			linkCaches: {
+				"a.md": [
+					refAt(twoOnLine, "[[Subject]]", "Subject", 0),
+					refAt(twoOnLine, "[[Subject]]", "Subject", twoOnLine.indexOf("[[Subject]]") + 1),
+				],
+			},
+		});
+		block.onload();
+		await flush();
+		expect(
+			container.querySelector(".orbital-backlink-group-count")?.textContent,
+		).toBe("2");
+	});
+
 	it("renders a chevron and toggles the group's folded state when the title is clicked", async () => {
 		const { block, container } = ctx();
 		block.onload();
