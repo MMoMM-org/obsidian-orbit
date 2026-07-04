@@ -117,7 +117,7 @@ Each phase is defined in a separate file. Tasks follow red-green-refactor:
 **Prime** (context), **Test** (red), **Implement** (green), **Validate** (refactor + verify).
 
 - [x] [Phase 1: Pure Core](phase-1.md)
-- [ ] [Phase 2: Rendering & Plugin Wiring](phase-2.md)
+- [x] [Phase 2: Rendering & Plugin Wiring](phase-2.md)
 - [ ] [Phase 3: Integration, Docs & Validation](phase-3.md)
 
 ---

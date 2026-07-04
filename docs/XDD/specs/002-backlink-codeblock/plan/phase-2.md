@@ -1,6 +1,6 @@
 ---
 title: "Phase 2: Rendering & Plugin Wiring"
-status: in_progress
+status: completed
 version: "1.0"
 phase: 2
 ---
@@ -34,7 +34,7 @@ phase: 2
 This phase delivers the visible feature: a working `orbital-backlinks` block that
 renders compact/context, filters, refreshes live, and fails gracefully.
 
-- [ ] **T2.1 Orchestrator + compact render + live refresh (`BacklinkCodeBlock`)** `[activity: frontend-ui]`
+- [x] **T2.1 Orchestrator + compact render + live refresh (`BacklinkCodeBlock`)** `[activity: frontend-ui]`
 
   1. Prime: Read `[ref: SDD/Runtime View → render() algorithm]` and the
      `MarkdownRenderChild` lifecycle notes; review `RelationsPanel` click/hover.
@@ -59,7 +59,7 @@ renders compact/context, filters, refreshes live, and fails gracefully.
      - [ ] Debounced live refresh; no listener leak `[ref: PRD/AC Feature 4]`
      - [ ] Bad config → inline warning, no crash `[ref: PRD/AC Feature 5]`
 
-- [ ] **T2.2 Context-mode rendering + soft cap** `[activity: frontend-ui]`
+- [x] **T2.2 Context-mode rendering + soft cap** `[activity: frontend-ui]`
 
   1. Prime: Read `[ref: SDD/UI → Context wireframe]`, `[ref: SDD/Gotchas]`
      (filter `getFileCache().links` to links resolving to the subject), and
@@ -80,7 +80,7 @@ renders compact/context, filters, refreshes live, and fails gracefully.
      - [ ] Soft cap with "… and N more" `[ref: PRD/Should-have cap]`
      - [ ] One source read failing does not abort the block `[ref: SDD/Error Handling]`
 
-- [ ] **T2.3 Registration, deps factory & styles** `[activity: integration]`
+- [x] **T2.3 Registration, deps factory & styles** `[activity: integration]`
 
   1. Prime: Read `_buildRelationsDeps` and the `registerView`/command block in
      `src/main.ts`; review existing `.orbital-*` rules in `styles.css`.
@@ -100,7 +100,7 @@ renders compact/context, filters, refreshes live, and fails gracefully.
      - [ ] Block renders in reading view AND live preview `[ref: PRD/AC Feature 1]`
      - [ ] Styles use theme tokens, stylelint passes `[ref: SDD/UI → Design System]`
 
-- [ ] **T2.4 Phase Validation** `[activity: validate]`
+- [x] **T2.4 Phase Validation** `[activity: validate]`
 
   Run `npm test`, `npm run lint`, `npm run typecheck`, `npm run build`. Verify
   against the SDD Runtime View and the Feature 1/3/4/5 acceptance criteria.
