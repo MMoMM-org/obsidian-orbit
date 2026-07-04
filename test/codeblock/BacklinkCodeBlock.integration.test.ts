@@ -83,7 +83,11 @@ function lastHandler(
 	throw new Error(`No handler registered for event "${event}"`);
 }
 
-/** Flush async microtask chains (needed for context-mode renders with cachedRead). */
+/**
+ * Flush async microtask chains (needed for context-mode renders with cachedRead).
+ * MUST NOT be called while `vi.useFakeTimers()` is active — the underlying
+ * `setTimeout` is faked there, so the promise would never resolve and hang the run.
+ */
 function flush(): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, 0));
 }
@@ -307,7 +311,7 @@ describe("BacklinkCodeBlock integration — context render", () => {
 
 		expect(el.querySelectorAll(".orbital-backlink-group")).toHaveLength(1);
 		const highlights = el.querySelectorAll(".search-result-file-matched-text");
-		expect(highlights.length).toBeGreaterThan(0);
+		expect(highlights).toHaveLength(1);
 		expect(highlights[0]?.textContent).toBe("[[Subject]]");
 	});
 });
