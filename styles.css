@@ -733,3 +733,71 @@
 .orbital-confirm-btn {
 	margin-top: 8px;
 }
+
+/* ── Backlinks codeblock (002-backlink-codeblock — Phase 2) ──────────────────
+   In-note `orbital-backlinks` block. Native tree-item / search-result classes
+   supply the theme look; the orbital- hooks below add spacing only. Colors come
+   exclusively from theme tokens.
+   ─────────────────────────────────────────────────────────────────────────*/
+
+.orbital-backlink-count {
+	font-size: var(--font-small);
+	font-weight: var(--font-semibold);
+	color: var(--text-muted);
+	margin-bottom: 6px;
+}
+
+.orbital-backlink-item {
+	padding: 2px 6px;
+	cursor: pointer;
+	color: var(--text-normal);
+}
+
+.orbital-backlink-item:hover {
+	color: var(--text-accent);
+}
+
+.orbital-backlink-group {
+	margin-bottom: 8px;
+}
+
+.orbital-backlink-group-title {
+	padding: 2px 6px;
+	cursor: pointer;
+	color: var(--text-normal);
+	font-weight: var(--font-semibold);
+}
+
+.orbital-backlink-group-title:hover {
+	color: var(--text-accent);
+}
+
+.orbital-backlink-snippet {
+	padding: 2px 6px 2px 16px;
+	font-size: var(--font-small);
+	color: var(--text-muted);
+}
+
+.orbital-backlink-empty {
+	font-size: var(--font-small);
+	color: var(--text-faint);
+	padding: 2px 6px;
+}
+
+.orbital-backlink-notice {
+	font-size: var(--font-small);
+	color: var(--text-faint);
+	margin-top: 6px;
+}
+
+.orbital-backlink-more {
+	font-size: var(--font-small);
+	color: var(--text-faint);
+	padding: 2px 6px;
+}
+
+.orbital-backlink-error {
+	font-size: var(--font-small);
+	color: var(--text-error);
+	padding: 2px 6px;
+}
