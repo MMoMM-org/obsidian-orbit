@@ -600,7 +600,7 @@ describe("BacklinkCodeBlock — context styles, collapse & open-at-line (v1.1)",
 		).toBe(false);
 	});
 
-	it("opens the source note at the clicked line (mod-click → new tab)", async () => {
+	it("opens the source note at the clicked line", async () => {
 		const { block, container, app } = ctx();
 		block.onload();
 		await flush();
