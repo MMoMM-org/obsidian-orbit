@@ -1,6 +1,8 @@
 export type DanglingGrouping = "target" | "source";
 export type DanglingScope = "vault" | "folder";
 export type TabId = "relations" | "dangling" | "recent";
+/** Visual style for the in-note backlinks code block in context mode. */
+export type ContextStyle = "dense" | "cards";
 
 export interface OrbitalSettings {
 	/** Number of recently visited notes to show. */
@@ -27,6 +29,10 @@ export interface OrbitalSettings {
 	showCounts: boolean;
 	/** When true, a status-bar item shows backlink/2nd-hop counts for the active note. */
 	showStatusBar: boolean;
+	/** Default visual style for the in-note backlinks code block in context mode. */
+	backlinkContextStyle: ContextStyle;
+	/** When true, in-note backlink context groups start folded (block `collapse:` overrides). */
+	backlinkContextCollapse: boolean;
 	/** When true, the Relations tab shows an "Unlinked mentions" section. */
 	unlinkedMentionsEnabled: boolean;
 	/** When true, clicking an unlinked mention opens the note in a new tab. */
@@ -50,6 +56,8 @@ export const DEFAULT_SETTINGS: OrbitalSettings = {
 	defaultTab: "relations",
 	showCounts: true,
 	showStatusBar: true,
+	backlinkContextStyle: "dense",
+	backlinkContextCollapse: false,
 	unlinkedMentionsEnabled: true,
 	unlinkedOpenInNewTab: false,
 	debugLogging: false,

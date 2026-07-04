@@ -1,6 +1,6 @@
 import type OrbitalPlugin from "main";
 import { type App, PluginSettingTab, Setting } from "obsidian";
-import type { DanglingGrouping, DanglingScope, TabId } from "types/index";
+import type { ContextStyle, DanglingGrouping, DanglingScope, TabId } from "types/index";
 
 import { FolderSuggest } from "./FolderSuggest";
 import { HeaderSection } from "./HeaderSection";
@@ -25,6 +25,7 @@ export class SettingsTab extends PluginSettingTab {
 
 		this.renderGeneralSection(containerEl);
 		this.renderRelationsSection(containerEl);
+		this.renderBacklinksSection(containerEl);
 		this.renderDanglingSection(containerEl);
 		this.renderRecentSection(containerEl);
 		this.renderAdvancedSection(containerEl);
@@ -130,6 +131,36 @@ export class SettingsTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.unlinkedOpenInNewTab)
 					.onChange(async (value) => {
 						this.plugin.settings.unlinkedOpenInNewTab = value;
+						await this.plugin.saveSettings();
+					}),
+			);
+	}
+
+	private renderBacklinksSection(containerEl: HTMLElement): void {
+		new Setting(containerEl).setName("In-note backlinks").setHeading();
+
+		new Setting(containerEl)
+			.setName("Context style")
+			.setDesc("Default visual style for the orbital-backlinks code block in context mode. A block's own 'style:' key overrides this.")
+			.addDropdown((dropdown) =>
+				dropdown
+					.addOption("dense", "Dense")
+					.addOption("cards", "Cards")
+					.setValue(this.plugin.settings.backlinkContextStyle)
+					.onChange(async (value) => {
+						this.plugin.settings.backlinkContextStyle = value as ContextStyle;
+						await this.plugin.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
+			.setName("Collapse context by default")
+			.setDesc("Start context-mode source groups folded. A block's own 'collapse:' key overrides this.")
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.backlinkContextCollapse)
+					.onChange(async (value) => {
+						this.plugin.settings.backlinkContextCollapse = value;
 						await this.plugin.saveSettings();
 					}),
 			);

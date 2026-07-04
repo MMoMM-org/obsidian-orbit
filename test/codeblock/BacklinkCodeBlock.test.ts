@@ -524,6 +524,106 @@ describe("BacklinkCodeBlock — context render", () => {
 });
 
 // ---------------------------------------------------------------------------
+// v1.1 — context styles, collapse & open-at-line
+// ---------------------------------------------------------------------------
+
+describe("BacklinkCodeBlock — context styles, collapse & open-at-line (v1.1)", () => {
+	const oneLine = "See [[Subject]] here.";
+	function ctx(overrides: Partial<SetupOptions> = {}) {
+		return setup({
+			rawSource: "display: context",
+			resolved: { "a.md": { "Subject.md": 1 } },
+			contents: { "a.md": oneLine },
+			linkCaches: { "a.md": [refAt(oneLine, "[[Subject]]", "Subject")] },
+			resolvesToSubject: true,
+			...overrides,
+		});
+	}
+
+	it("uses the setting style (dense) when no block style is given", async () => {
+		const { block, container } = ctx();
+		block.onload();
+		await flush();
+		expect(container.querySelector(".orbital-backlink-context--dense")).not.toBeNull();
+	});
+
+	it("uses the setting style (cards) from backlinkContextStyle", async () => {
+		const { block, container } = ctx({ settings: { backlinkContextStyle: "cards" } });
+		block.onload();
+		await flush();
+		expect(container.querySelector(".orbital-backlink-context--cards")).not.toBeNull();
+	});
+
+	it("a block 'style: cards' overrides the dense setting", async () => {
+		const { block, container } = ctx({
+			rawSource: "display: context\nstyle: cards",
+			settings: { backlinkContextStyle: "dense" },
+		});
+		block.onload();
+		await flush();
+		expect(container.querySelector(".orbital-backlink-context--cards")).not.toBeNull();
+		expect(container.querySelector(".orbital-backlink-context--dense")).toBeNull();
+	});
+
+	it("renders a chevron and toggles the group's folded state when the title is clicked", async () => {
+		const { block, container } = ctx();
+		block.onload();
+		await flush();
+		const group = container.querySelector(".orbital-backlink-group") as HTMLElement;
+		expect(group.querySelector(".orbital-backlink-chevron")).not.toBeNull();
+		expect(group.classList.contains("is-collapsed")).toBe(false);
+
+		(container.querySelector(".orbital-backlink-group-title") as HTMLElement).click();
+		expect(group.classList.contains("is-collapsed")).toBe(true);
+		(container.querySelector(".orbital-backlink-group-title") as HTMLElement).click();
+		expect(group.classList.contains("is-collapsed")).toBe(false);
+	});
+
+	it("starts groups folded when the backlinkContextCollapse setting is true", async () => {
+		const { block, container } = ctx({ settings: { backlinkContextCollapse: true } });
+		block.onload();
+		await flush();
+		expect(
+			container.querySelector(".orbital-backlink-group")?.classList.contains("is-collapsed"),
+		).toBe(true);
+	});
+
+	it("a block 'collapse: false' overrides the collapse setting", async () => {
+		const { block, container } = ctx({
+			rawSource: "display: context\ncollapse: false",
+			settings: { backlinkContextCollapse: true },
+		});
+		block.onload();
+		await flush();
+		expect(
+			container.querySelector(".orbital-backlink-group")?.classList.contains("is-collapsed"),
+		).toBe(false);
+	});
+
+	it("opens the source note at the clicked line (mod-click → new tab)", async () => {
+		const { block, container, app } = ctx();
+		block.onload();
+		await flush();
+
+		(container.querySelector(".orbital-backlink-snippet") as HTMLElement).click();
+		const leaf = vi.mocked(app.workspace.getLeaf).mock.results[0]?.value;
+		expect(leaf.openLinkText).toHaveBeenCalledWith("a.md", "Subject.md", {
+			eState: { line: 0 },
+		});
+	});
+
+	it("does not open the note when the group title is clicked (title folds only)", async () => {
+		const { block, container, app } = ctx();
+		block.onload();
+		await flush();
+		vi.mocked(app.workspace.getLeaf).mockClear();
+
+		(container.querySelector(".orbital-backlink-group-title") as HTMLElement).click();
+		expect(app.workspace.getLeaf).not.toHaveBeenCalled();
+	});
+});
+
+// ---------------------------------------------------------------------------
 // T2.3 — plugin registration
 // ---------------------------------------------------------------------------
 

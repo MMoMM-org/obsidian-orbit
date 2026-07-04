@@ -23,7 +23,7 @@ import { filterBacklinks } from "codeblock/backlinkFilter";
 import { extractContext } from "graph/backlinkContext";
 import type { ContextSnippet, LinkOffset } from "graph/backlinkContext";
 import type { LinkGraphIndex } from "graph/LinkGraphIndex";
-import type { OrbitalSettings } from "types/index";
+import type { ContextStyle, OrbitalSettings } from "types/index";
 
 // ---------------------------------------------------------------------------
 // Deps
@@ -186,6 +186,16 @@ export class BacklinkCodeBlock extends MarkdownRenderChild {
 		);
 	}
 
+	/** Context style: block `style:` key overrides the plugin setting. */
+	private effectiveStyle(): ContextStyle {
+		return this.config.style ?? this.deps.getSettings().backlinkContextStyle;
+	}
+
+	/** Initial fold state: block `collapse:` key overrides the plugin setting. */
+	private effectiveCollapsed(): boolean {
+		return this.config.collapse ?? this.deps.getSettings().backlinkContextCollapse;
+	}
+
 	// -------------------------------------------------------------------------
 	// Compact rendering
 	// -------------------------------------------------------------------------
@@ -235,12 +245,17 @@ export class BacklinkCodeBlock extends MarkdownRenderChild {
 		survivors: string[],
 		subject: TFile,
 	): Promise<void> {
+		const style = this.effectiveStyle();
+		const collapsed = this.effectiveCollapsed();
+		const wrap = el.createDiv({
+			cls: `orbital-backlink-context orbital-backlink-context--${style}`,
+		}) as unknown as AugmentedEl;
 		const capped = survivors.slice(0, CONTEXT_CAP);
 		for (const path of capped) {
-			await this.renderContextSource(el, path, subject);
+			await this.renderContextSource(wrap, path, subject, collapsed);
 		}
 		if (survivors.length > CONTEXT_CAP) {
-			el.createDiv({
+			wrap.createDiv({
 				cls: "orbital-backlink-more",
 				text: `… and ${survivors.length - CONTEXT_CAP} more`,
 			});
@@ -251,6 +266,7 @@ export class BacklinkCodeBlock extends MarkdownRenderChild {
 		el: AugmentedEl,
 		path: string,
 		subject: TFile,
+		collapsed: boolean,
 	): Promise<void> {
 		const { app } = this.deps;
 		const file = app.vault.getFileByPath(path);
@@ -270,7 +286,7 @@ export class BacklinkCodeBlock extends MarkdownRenderChild {
 		const snippets = extractContext(content, offsets, CONTEXT_WINDOW);
 		if (snippets.length === 0) return;
 
-		this.renderGroup(el, path, file, snippets);
+		this.renderGroup(el, path, file, snippets, collapsed);
 	}
 
 	/** Link offsets in `file` whose link resolves to the subject note. */
@@ -300,34 +316,48 @@ export class BacklinkCodeBlock extends MarkdownRenderChild {
 		path: string,
 		file: TFile,
 		snippets: ContextSnippet[],
+		collapsed: boolean,
 	): void {
 		const group = el.createEl("div", {
-			cls: "search-result orbital-backlink-group",
+			cls: "search-result orbital-backlink-group"
+				+ (collapsed ? " is-collapsed" : ""),
 			attr: { "data-path": path },
 		});
 		const groupEl = group as unknown as AugmentedEl;
 
+		// Title row: chevron + name. Clicking the title (or chevron) folds this
+		// group — it does NOT open the note; opening is done from a context line.
 		const title = groupEl.createEl("div", {
 			cls: "search-result-file-title is-clickable orbital-backlink-group-title",
 		});
-		(title as unknown as AugmentedEl).createSpan({
+		const titleEl = title as unknown as AugmentedEl;
+		titleEl.createSpan({ cls: "orbital-backlink-chevron" });
+		titleEl.createSpan({
 			cls: "orbital-backlink-item-label",
 			text: this.displayName(path, file),
 		});
-		this.wireOpen(title, path);
+		this.wireFold(title, group);
 		this.wireHover(title, path);
 
 		const matches = groupEl.createEl("div", { cls: "search-result-file-matches" });
 		for (const snippet of snippets) {
-			this.renderSnippet(matches, snippet);
+			this.renderSnippet(matches, snippet, path);
 		}
 	}
 
-	private renderSnippet(container: HTMLElement, snippet: ContextSnippet): void {
+	private renderSnippet(
+		container: HTMLElement,
+		snippet: ContextSnippet,
+		path: string,
+	): void {
 		const row = (container as unknown as AugmentedEl).createEl("div", {
-			cls: "search-result-file-match orbital-backlink-snippet",
+			cls: "search-result-file-match is-clickable orbital-backlink-snippet",
 		});
 		const rowEl = row as unknown as AugmentedEl;
+		// Clicking a context line opens the source note scrolled to that line.
+		this.registerDomEvent(row, "click", (evt) =>
+			this.openPath(path, evt, snippet.lineIndex),
+		);
 		// The window centre (the link itself) is always highlighted. Repeated
 		// occurrences in before/after are highlighted only when the line holds
 		// more than one link to the subject (matchCount > 1).
@@ -389,6 +419,13 @@ export class BacklinkCodeBlock extends MarkdownRenderChild {
 		this.registerDomEvent(el, "click", (evt) => this.openPath(path, evt));
 	}
 
+	/** Toggle a context group's folded state (pure DOM; not persisted). */
+	private wireFold(titleEl: HTMLElement, group: HTMLElement): void {
+		this.registerDomEvent(titleEl, "click", () => {
+			group.classList.toggle("is-collapsed");
+		});
+	}
+
 	private wireHover(el: HTMLElement, path: string): void {
 		this.registerDomEvent(el, "mouseover", (evt) => {
 			this.deps.app.workspace.trigger("hover-link", {
@@ -402,17 +439,27 @@ export class BacklinkCodeBlock extends MarkdownRenderChild {
 		});
 	}
 
-	private openPath(path: string, evt: MouseEvent): void {
+	private openPath(path: string, evt: MouseEvent, line?: number): void {
 		// getLeaf picks the leaf; openLinkText takes no newLeaf arg (its 3rd param
 		// is openViewState — passing a truthy newLeaf there throws). Mirrors
 		// RelationsPanel.renderResolvedItem. leaf.openLinkText is not on the public
-		// WorkspaceLeaf type, so it is accessed through a structural cast.
+		// WorkspaceLeaf type, so it is accessed through a structural cast. When a
+		// line is given (context-line click) it is passed via eState so the note
+		// scrolls to the link; if the runtime ignores eState the note still opens.
 		const leaf = this.deps.app.workspace.getLeaf(
 			Keymap.isModEvent(evt),
 		) as unknown as {
-			openLinkText(linktext: string, sourcePath: string): void | Promise<void>;
+			openLinkText(
+				linktext: string,
+				sourcePath: string,
+				openViewState?: { eState?: { line: number } },
+			): void | Promise<void>;
 		};
-		void leaf.openLinkText(path, this.sourcePath);
+		if (line === undefined) {
+			void leaf.openLinkText(path, this.sourcePath);
+		} else {
+			void leaf.openLinkText(path, this.sourcePath, { eState: { line } });
+		}
 	}
 
 	private displayName(path: string, file: TFile | null): string {

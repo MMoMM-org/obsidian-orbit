@@ -111,14 +111,23 @@ All keys are optional. Omit any key to use its default.
 | `folder-exclude` | comma-separated folder paths | _(none)_ |
 | `tag` | comma-separated tags (`#` optional) | _(no constraint)_ |
 | `tag-exclude` | comma-separated tags (`#` optional) | _(none)_ |
+| `style` | `dense` or `cards` (context only) | _(the **Context style** setting)_ |
+| `collapse` | `true` or `false` (context only) | _(the **Collapse context by default** setting)_ |
 
 **`display`** — `compact` (default) shows one clickable title per source note. `context` shows the text surrounding each link; see [Display modes](#display-modes) below.
+
+**`style`** — context-mode visual style: `dense` (compact list with a vertical rule) or `cards` (one bordered card per source). Overrides the **Context style** setting for this block. Ignored in compact mode.
+
+**`collapse`** — `true` starts each context group folded; `false` starts them expanded. Overrides the **Collapse context by default** setting for this block. Ignored in compact mode.
 
 **`folder` / `folder-exclude`** — match on path-segment boundaries, subfolders included. `Research` matches `Research/paper.md` but not `Researchers/x.md`. Supply a comma-separated list to match multiple folders.
 
 **`tag` / `tag-exclude`** — nested-tag aware. `tag: #active` matches notes tagged `#active` or `#active/now`. Matches both inline and frontmatter tags. The leading `#` is optional in the config.
 
-There are no plugin settings for this feature — everything is configured in the block's markdown source.
+Two plugin settings under **Settings → Orbital → In-note backlinks** set the
+context-mode defaults (**Context style** and **Collapse context by default**);
+every other option lives in the block's markdown source. A block's `style:` /
+`collapse:` keys override those settings.
 
 #### Display modes
 
@@ -126,12 +135,14 @@ There are no plugin settings for this feature — everything is configured in th
 
 **Context**: under each source note the block shows a windowed snippet (~90 characters on each side) of the line where the link appears, with the link text highlighted.
 
+- Each source has a **chevron**; click the chevron or the source title to fold/unfold that group. Start folded with `collapse: true` (or the setting).
+- **Click a context line to open** the source note scrolled to that line. Mod-click opens it in a new tab.
+- Choose the look with `style: dense` (default) or `style: cards` (or the **Context style** setting).
 - If a source note links to the containing note on **two different lines**, you see two snippets under that source.
 - If two links to the containing note appear on the **same line**, the line is shown once with both occurrences highlighted.
-- Context groups are always expanded.
 - Context mode is soft-capped at **50 source notes**; if more exist, a "… and N more" notice appears at the end of the block.
 
-An unrecognised `display` value falls back to compact and shows an inline warning.
+An unrecognised `display`, `style`, or `collapse` value falls back to the default and shows an inline warning.
 
 #### Filter precedence
 
@@ -145,13 +156,12 @@ Concrete example: a block with `folder: a/b` and `folder-exclude: a` — a sourc
 
 Orbital's global exclusion settings (path/tag patterns in **Settings → Orbital → Advanced**) are applied on top of, and independently of, the block's own filters.
 
-#### v1 limitations
+#### Limitations
 
-- Clicking a source title opens the note; there is no jump to the exact line where the link appears.
 - The block always shows backlinks to the note it lives in; there is no way to target a different note.
 - No second-hop (transitive) relations.
 - No sort or limit options; sources appear in index order.
-- Context groups are always expanded; collapse state is not persisted.
+- Fold state is per-block and is not persisted across reloads.
 
 #### Example
 

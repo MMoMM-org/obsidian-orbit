@@ -285,3 +285,49 @@ describe("parseBacklinkBlockConfig — warnings", () => {
 		expect(config.tagExclude).toEqual([]);
 	});
 });
+
+describe("parseBacklinkBlockConfig — style (v1.1)", () => {
+	it("leaves style undefined when the key is absent (inherit setting)", () => {
+		expect(parseBacklinkBlockConfig("").style).toBeUndefined();
+	});
+
+	it("parses style: dense and style: cards", () => {
+		expect(parseBacklinkBlockConfig("style: dense").style).toBe("dense");
+		expect(parseBacklinkBlockConfig("style: cards").style).toBe("cards");
+	});
+
+	it("is case-insensitive and whitespace-tolerant", () => {
+		expect(parseBacklinkBlockConfig("style :  Cards ").style).toBe("cards");
+	});
+
+	it("warns and leaves style inherited on an invalid value", () => {
+		const config = parseBacklinkBlockConfig("style: fancy");
+		expect(config.style).toBeUndefined();
+		expect(config.warnings).toContainEqual({
+			message: "invalid style value 'fancy' (using the setting default)",
+		});
+	});
+});
+
+describe("parseBacklinkBlockConfig — collapse (v1.1)", () => {
+	it("leaves collapse undefined when the key is absent (inherit setting)", () => {
+		expect(parseBacklinkBlockConfig("").collapse).toBeUndefined();
+	});
+
+	it("parses collapse: true and collapse: false", () => {
+		expect(parseBacklinkBlockConfig("collapse: true").collapse).toBe(true);
+		expect(parseBacklinkBlockConfig("collapse: false").collapse).toBe(false);
+	});
+
+	it("is case-insensitive and whitespace-tolerant", () => {
+		expect(parseBacklinkBlockConfig("collapse:  TRUE ").collapse).toBe(true);
+	});
+
+	it("warns and leaves collapse inherited on an invalid value", () => {
+		const config = parseBacklinkBlockConfig("collapse: maybe");
+		expect(config.collapse).toBeUndefined();
+		expect(config.warnings).toContainEqual({
+			message: "invalid collapse value 'maybe' (expected true or false)",
+		});
+	});
+});

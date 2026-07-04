@@ -8,6 +8,8 @@
  * See docs/XDD/specs/002-backlink-codeblock/ for the full specification.
  */
 
+import type { ContextStyle } from "types/index";
+
 export type DisplayMode = "compact" | "context";
 
 export interface BacklinkBlockWarning {
@@ -20,6 +22,10 @@ export interface BacklinkBlockConfig {
 	folderExclude: string[];
 	tagInclude: string[];
 	tagExclude: string[];
+	/** Context style override; undefined = inherit the plugin setting. */
+	style?: ContextStyle;
+	/** Initial context-group fold override; undefined = inherit the plugin setting. */
+	collapse?: boolean;
 	warnings: BacklinkBlockWarning[];
 }
 
@@ -78,6 +84,30 @@ function applyDisplayKey(config: BacklinkBlockConfig, rawValue: string): void {
 	config.display = "compact";
 }
 
+/** Apply a validated style value or push a warning and leave it inherited. */
+function applyStyleKey(config: BacklinkBlockConfig, rawValue: string): void {
+	const val = rawValue.trim().toLowerCase();
+	if (val === "dense" || val === "cards") {
+		config.style = val;
+		return;
+	}
+	config.warnings.push({
+		message: `invalid style value '${val}' (using the setting default)`,
+	});
+}
+
+/** Apply a validated collapse value or push a warning and leave it inherited. */
+function applyCollapseKey(config: BacklinkBlockConfig, rawValue: string): void {
+	const val = rawValue.trim().toLowerCase();
+	if (val === "true" || val === "false") {
+		config.collapse = val === "true";
+		return;
+	}
+	config.warnings.push({
+		message: `invalid collapse value '${val}' (expected true or false)`,
+	});
+}
+
 /**
  * Process a single raw line into config mutations.
  *
@@ -109,6 +139,12 @@ function processLine(config: BacklinkBlockConfig, line: string): void {
 			break;
 		case "tag-exclude":
 			applyListKey(config, "tagExclude", rawValue, normalizeTag);
+			break;
+		case "style":
+			applyStyleKey(config, rawValue);
+			break;
+		case "collapse":
+			applyCollapseKey(config, rawValue);
 			break;
 		default:
 			config.warnings.push({ message: `unknown key '${key}'` });
