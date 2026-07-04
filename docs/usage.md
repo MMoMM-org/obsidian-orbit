@@ -87,6 +87,85 @@ a `[[wikilink]]` at the drop point, remove a single entry with its **×**, or
 **Clear list** to empty it. The list length and folder/tag exclusions are configurable
 (see below).
 
+### In-note backlinks (`orbital-backlinks`)
+
+An `orbital-backlinks` code block renders the **containing note's** backlinks inline, in reading view and live preview. Drop it anywhere in a note to see which other notes link to it, without opening the Relations sidebar. The block updates automatically as links across the vault change.
+
+#### Creating the block
+
+An empty block works immediately with no configuration:
+
+````markdown
+```orbital-backlinks
+```
+````
+
+#### Config keys
+
+All keys are optional. Omit any key to use its default.
+
+| Key | Values | Default |
+|-----|--------|---------|
+| `display` | `compact` or `context` | `compact` |
+| `folder` | comma-separated folder paths | _(no constraint)_ |
+| `folder-exclude` | comma-separated folder paths | _(none)_ |
+| `tag` | comma-separated tags (`#` optional) | _(no constraint)_ |
+| `tag-exclude` | comma-separated tags (`#` optional) | _(none)_ |
+
+**`display`** — `compact` (default) shows one clickable title per source note. `context` shows the text surrounding each link; see [Display modes](#display-modes) below.
+
+**`folder` / `folder-exclude`** — match on path-segment boundaries, subfolders included. `Research` matches `Research/paper.md` but not `Researchers/x.md`. Supply a comma-separated list to match multiple folders.
+
+**`tag` / `tag-exclude`** — nested-tag aware. `tag: #active` matches notes tagged `#active` or `#active/now`. Matches both inline and frontmatter tags. The leading `#` is optional in the config.
+
+There are no plugin settings for this feature — everything is configured in the block's markdown source.
+
+#### Display modes
+
+**Compact** (default): one clickable title per source note, uncapped. Click to open the note; Mod-click (Cmd/Ctrl) opens it in a new tab. Hover with the Page preview core plugin enabled for a preview popover.
+
+**Context**: under each source note the block shows a windowed snippet (~90 characters on each side) of the line where the link appears, with the link text highlighted.
+
+- If a source note links to the containing note on **two different lines**, you see two snippets under that source.
+- If two links to the containing note appear on the **same line**, the line is shown once with both occurrences highlighted.
+- Context groups are always expanded.
+- Context mode is soft-capped at **50 source notes**; if more exist, a "… and N more" notice appears at the end of the block.
+
+An unrecognised `display` value falls back to compact and shows an inline warning.
+
+#### Filter precedence
+
+Multiple values within a key are OR'd — `folder: Projects, Areas` matches sources in either folder.
+
+Filters across different keys are AND'd — `folder: Projects` combined with `tag: #active` shows only sources that are inside Projects **and** carry `#active`.
+
+**Exclude keys always win.** A source matched by `folder-exclude` or `tag-exclude` is hidden regardless of what the include keys say.
+
+Concrete example: a block with `folder: a/b` and `folder-exclude: a` — a source at `a/b/note.md` satisfies the include (it is inside `a/b`), but the exclude wins (it is a subfolder of `a`), so the source is hidden.
+
+Orbital's global exclusion settings (path/tag patterns in **Settings → Orbital → Advanced**) are applied on top of, and independently of, the block's own filters.
+
+#### v1 limitations
+
+- Clicking a source title opens the note; there is no jump to the exact line where the link appears.
+- The block always shows backlinks to the note it lives in; there is no way to target a different note.
+- No second-hop (transitive) relations.
+- No sort or limit options; sources appear in index order.
+- Context groups are always expanded; collapse state is not persisted.
+
+#### Example
+
+````markdown
+```orbital-backlinks
+display: context
+folder: Projects, Areas
+tag: #active
+tag-exclude: #draft
+```
+````
+
+This block shows backlinks from notes inside `Projects` or `Areas`, tagged `#active` (or any nested tag such as `#active/now`), excluding any that also carry `#draft`. Each source displays the line of text where the link appears, with the link highlighted.
+
 ## Tips and shortcuts
 
 - **Mod-click / middle-click** any relation or recent row to open it in a new tab.

@@ -146,6 +146,10 @@ These settings appear at the top of the settings tab, above the first heading.
 - **When to change:** turn on when reproducing a bug to capture detail for a report
   (see [Troubleshooting](troubleshooting.md)); leave off otherwise.
 
+## In-note backlinks (`orbital-backlinks`)
+
+The `orbital-backlinks` code block has no plugin settings. All configuration — display mode, folder filters, and tag filters — is written directly in the block's markdown source. See the [Usage guide](usage.md#in-note-backlinks-orbital-backlinks) for the full syntax.
+
 ## See also
 
 - [Configuration](configuration.md) — the at-a-glance name/type/default table.
