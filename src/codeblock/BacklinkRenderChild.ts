@@ -18,8 +18,7 @@ import { MarkdownRenderChild, Keymap, getAllTags } from "obsidian";
 import type { App, TFile } from "obsidian";
 import type { BacklinkBlockConfig } from "codeblock/BacklinkBlockConfig";
 import { filterBacklinks } from "codeblock/backlinkFilter";
-import { extractContext } from "graph/backlinkContext";
-import type { ContextSnippet, LinkOffset } from "graph/backlinkContext";
+import { renderContextGroups } from "codeblock/backlinkContextRender";
 import type { LinkGraphIndex } from "graph/LinkGraphIndex";
 import type { ContextStyle, OrbitalSettings } from "types/index";
 
@@ -212,169 +211,22 @@ export abstract class BacklinkRenderChild extends MarkdownRenderChild {
 		survivors: string[],
 		subject: TFile,
 	): Promise<void> {
-		const style = this.effectiveStyle();
-		const collapsed = this.effectiveCollapsed();
-		const wrap = el.createDiv({
-			cls: `orbital-backlink-context orbital-backlink-context--${style}`,
-		}) as unknown as AugmentedEl;
-		const capped = survivors.slice(0, CONTEXT_CAP);
-		for (const path of capped) {
-			await this.renderContextSource(wrap, path, subject, collapsed);
-		}
-		if (survivors.length > CONTEXT_CAP) {
-			wrap.createDiv({
-				cls: "orbital-backlink-more",
-				text: `… and ${survivors.length - CONTEXT_CAP} more`,
-			});
-		}
-	}
-
-	private async renderContextSource(
-		el: AugmentedEl,
-		path: string,
-		subject: TFile,
-		collapsed: boolean,
-	): Promise<void> {
-		const { app } = this.deps;
-		const file = app.vault.getFileByPath(path);
-		if (!file) return;
-
-		let content: string;
-		try {
-			content = await app.vault.cachedRead(file);
-		} catch {
-			// A single unreadable source is skipped; the block continues.
-			return;
-		}
-
-		const offsets = this.subjectLinkOffsets(file, path, subject);
-		if (offsets.length === 0) return;
-
-		const snippets = extractContext(content, offsets, CONTEXT_WINDOW);
-		if (snippets.length === 0) return;
-
-		this.renderGroup(el, path, file, snippets, collapsed);
-	}
-
-	/** Link offsets in `file` whose link resolves to the subject note. */
-	private subjectLinkOffsets(
-		file: TFile,
-		sourcePath: string,
-		subject: TFile,
-	): LinkOffset[] {
-		const { app } = this.deps;
-		const links = app.metadataCache.getFileCache(file)?.links ?? [];
-		const offsets: LinkOffset[] = [];
-		for (const link of links) {
-			if (!link.link) continue;
-			const dest = app.metadataCache.getFirstLinkpathDest(link.link, sourcePath);
-			if (dest && dest.path === subject.path) {
-				offsets.push({
-					start: link.position.start.offset,
-					end: link.position.end.offset,
-				});
-			}
-		}
-		return offsets;
-	}
-
-	private renderGroup(
-		el: AugmentedEl,
-		path: string,
-		file: TFile,
-		snippets: ContextSnippet[],
-		collapsed: boolean,
-	): void {
-		const group = el.createEl("div", {
-			cls: "search-result orbital-backlink-group"
-				+ (collapsed ? " is-collapsed" : ""),
-			attr: { "data-path": path },
+		// Delegate to the shared context renderer; the code block / footer always
+		// use the compact window with no surrounding lines (the Context tab varies
+		// these). Interaction is wired to this MarkdownRenderChild's lifecycle.
+		await renderContextGroups(el, survivors, {
+			app: this.deps.app,
+			sourcePath: this.sourcePath,
+			subject,
+			style: this.effectiveStyle(),
+			collapsed: this.effectiveCollapsed(),
+			windowChars: CONTEXT_WINDOW,
+			surroundingLines: false,
+			cap: CONTEXT_CAP,
+			register: (target, type, handler) => this.registerDomEvent(target, type, handler),
+			open: (path, evt, line) => this.openPath(path, evt, line),
+			hover: (target, path) => this.wireHover(target, path),
 		});
-		const groupEl = group as unknown as AugmentedEl;
-
-		// Title row: chevron + name. Clicking the title (or chevron) folds this
-		// group — it does NOT open the note; opening is done from a context line.
-		const title = groupEl.createEl("div", {
-			cls: "search-result-file-title is-clickable orbital-backlink-group-title",
-		});
-		const titleEl = title as unknown as AugmentedEl;
-		titleEl.createSpan({ cls: "orbital-backlink-chevron" });
-		titleEl.createSpan({
-			cls: "orbital-backlink-item-label",
-			text: this.displayName(path, file),
-		});
-		// Occurrence count for this source (matches native Linked-mentions): the
-		// number of links to the subject in this note = sum of per-line matchCount.
-		const occurrences = snippets.reduce((n, s) => n + s.matchCount, 0);
-		titleEl.createSpan({
-			cls: "orbital-backlink-group-count",
-			text: String(occurrences),
-		});
-		this.wireFold(title, group);
-		this.wireHover(title, path);
-
-		const matches = groupEl.createEl("div", { cls: "search-result-file-matches" });
-		for (const snippet of snippets) {
-			this.renderSnippet(matches, snippet, path);
-		}
-	}
-
-	private renderSnippet(
-		container: HTMLElement,
-		snippet: ContextSnippet,
-		path: string,
-	): void {
-		const row = (container as unknown as AugmentedEl).createEl("div", {
-			cls: "search-result-file-match is-clickable orbital-backlink-snippet",
-		});
-		const rowEl = row as unknown as AugmentedEl;
-		// Clicking a context line opens the source note scrolled to that line.
-		this.registerDomEvent(row, "click", (evt) =>
-			this.openPath(path, evt, snippet.lineIndex),
-		);
-		// The window centre (the link itself) is always highlighted. Repeated
-		// occurrences in before/after are highlighted only when the line holds
-		// more than one link to the subject (matchCount > 1).
-		const highlightRepeats = snippet.matchCount > 1;
-		this.appendText(rowEl, snippet.before, snippet.match, highlightRepeats);
-		this.appendMatch(rowEl, snippet.match);
-		this.appendText(rowEl, snippet.after, snippet.match, highlightRepeats);
-	}
-
-	private appendMatch(rowEl: AugmentedEl, match: string): void {
-		if (match === "") return;
-		rowEl.createSpan({
-			cls: "search-result-file-matched-text orbital-backlink-match",
-			text: match,
-		});
-	}
-
-	/** Append `text`, highlighting occurrences of `match` when `highlight`. */
-	private appendText(
-		rowEl: AugmentedEl,
-		text: string,
-		match: string,
-		highlight: boolean,
-	): void {
-		if (text === "") return;
-		if (!highlight || match === "") {
-			rowEl.createSpan({ text });
-			return;
-		}
-		let idx = 0;
-		while (idx < text.length) {
-			const found = text.indexOf(match, idx);
-			if (found === -1) {
-				rowEl.createSpan({ text: text.slice(idx) });
-				break;
-			}
-			if (found > idx) rowEl.createSpan({ text: text.slice(idx, found) });
-			rowEl.createSpan({
-				cls: "search-result-file-matched-text orbital-backlink-match",
-				text: match,
-			});
-			idx = found + match.length;
-		}
 	}
 
 	private renderError(el: AugmentedEl, err: unknown): void {
@@ -391,13 +243,6 @@ export abstract class BacklinkRenderChild extends MarkdownRenderChild {
 
 	private wireOpen(el: HTMLElement, path: string): void {
 		this.registerDomEvent(el, "click", (evt) => this.openPath(path, evt));
-	}
-
-	/** Toggle a context group's folded state (pure DOM; not persisted). */
-	private wireFold(titleEl: HTMLElement, group: HTMLElement): void {
-		this.registerDomEvent(titleEl, "click", () => {
-			group.classList.toggle("is-collapsed");
-		});
 	}
 
 	private wireHover(el: HTMLElement, path: string): void {

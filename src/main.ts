@@ -4,7 +4,7 @@ import { computeRelations } from "graph/relations";
 import { SettingsTab } from "settings/SettingsTab";
 import { DEFAULT_SETTINGS, type OrbitalSettings } from "types/index";
 import { OrbitalView, VIEW_TYPE } from "view/OrbitalView";
-import type { RelationsDeps, DanglingDeps, RecentDeps } from "view/OrbitalView";
+import type { RelationsDeps, DanglingDeps, RecentDeps, ContextDeps } from "view/OrbitalView";
 import { LinkGraphIndex } from "graph/LinkGraphIndex";
 import { BacklinkCodeBlock } from "codeblock/BacklinkCodeBlock";
 import type { BacklinkDeps } from "codeblock/BacklinkCodeBlock";
@@ -99,6 +99,7 @@ export default class OrbitalPlugin extends Plugin {
 			this._buildRelationsDeps(),
 			this._buildDanglingDeps(),
 			this._buildRecentDeps(),
+			this._buildContextDeps(),
 		));
 
 		this.addCommand({
@@ -251,6 +252,20 @@ export default class OrbitalPlugin extends Plugin {
 	 * is the real Obsidian App.
 	 */
 	private _buildBacklinkDeps(): BacklinkDeps {
+		return {
+			index: this._index,
+			app: this.app,
+			getSettings: () => this.settings,
+			isExcluded: (path: string): boolean => this._isExcluded(path),
+		};
+	}
+
+	/**
+	 * Build the ContextDeps bundle the Context tab needs. Same shape as the
+	 * backlink deps (index, app, live settings, single _isExcluded source);
+	 * OrbitalView layers on the view-owned toolbar state.
+	 */
+	private _buildContextDeps(): ContextDeps {
 		return {
 			index: this._index,
 			app: this.app,
