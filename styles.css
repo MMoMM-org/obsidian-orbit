@@ -943,13 +943,14 @@
 }
 
 /* ── Backlinks footer (v1.2 auto-footer) ─────────────────────────────────────
-   Auto-appended into the note's content sizer (reading + live preview). A top
-   divider separates it from the note body, matching Obsidian's native
+   Rendered at the end of a note by a markdown post-processor (reading view) and
+   a CodeMirror block widget (live preview). It hugs the note's last line, with a
+   top divider separating it from the body — matching Obsidian's native
    "Backlinks in document" footer.
    ─────────────────────────────────────────────────────────────────────────*/
 
 .orbital-backlink-footer {
-	margin-top: 2em;
-	padding-top: 1em;
+	margin-top: 1.5em;
+	padding-top: 0.75em;
 	border-top: 1px solid var(--background-modifier-border);
 }

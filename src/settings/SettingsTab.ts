@@ -174,7 +174,7 @@ export class SettingsTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.backlinkFooterEnabled = value;
 						await this.plugin.saveSettings();
-						this.plugin._reconcileFooters();
+						this.plugin._refreshFooterHosts();
 					}),
 			);
 	}

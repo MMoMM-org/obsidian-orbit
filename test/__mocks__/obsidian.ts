@@ -276,6 +276,15 @@ export class Plugin extends Component {
 			) => void | Promise<void>,
 		) => {},
 	);
+	/**
+	 * registerMarkdownPostProcessor — records the handler so tests can invoke it
+	 * with a synthetic (el, ctx). Mirrors Obsidian's per-section post-processor.
+	 */
+	registerMarkdownPostProcessor = vi.fn(
+		(_handler: (el: HTMLElement, ctx: unknown) => void | Promise<void>) => ({}),
+	);
+	/** registerEditorExtension — records the CodeMirror extension (opaque in tests). */
+	registerEditorExtension = vi.fn((_extension: unknown) => {});
 	/** onExternalSettingsChange: called by Obsidian when settings change on disk. */
 	onExternalSettingsChange?: () => void | Promise<void>;
 }
@@ -487,6 +496,92 @@ export function augmentEl(el: HTMLElement): HTMLElement {
 
 	return el;
 }
+
+/**
+ * Install Obsidian's DOM helpers on HTMLElement.prototype so that EVERY element
+ * (including ones created with a bare document.createElement, as plugin render
+ * code does in production) has createEl/createDiv/createSpan/empty/*Class. In
+ * real Obsidian these live on the prototype globally; augmentEl remains for
+ * explicit per-element setup and simply shadows these with own properties.
+ */
+function installObsidianDomHelpers(): void {
+	const proto = HTMLElement.prototype as unknown as Record<string, unknown>;
+	if (proto["__orbitalHelpersInstalled"]) return;
+	proto["__orbitalHelpersInstalled"] = true;
+
+	proto["createEl"] = function (
+		this: HTMLElement,
+		childTag: string,
+		opts?: {
+			text?: string;
+			cls?: string;
+			type?: string;
+			placeholder?: string;
+			value?: string;
+			href?: string;
+			attr?: Record<string, string>;
+			title?: string;
+		},
+	): HTMLElement {
+		const child = document.createElement(childTag);
+		if (opts?.text) child.textContent = opts.text;
+		if (opts?.cls) child.className = opts.cls;
+		if (opts?.type) (child as HTMLInputElement).type = opts.type;
+		if (opts?.placeholder) (child as HTMLInputElement).placeholder = opts.placeholder;
+		if (opts?.value) (child as HTMLInputElement).value = opts.value;
+		if (opts?.href) (child as HTMLAnchorElement).href = opts.href;
+		if (opts?.title) child.title = opts.title;
+		if (opts?.attr) {
+			for (const [k, v] of Object.entries(opts.attr)) child.setAttribute(k, v);
+		}
+		this.appendChild(child);
+		return child;
+	};
+
+	proto["createDiv"] = function (
+		this: HTMLElement,
+		opts?: { cls?: string; text?: string },
+	): HTMLElement {
+		const div = document.createElement("div");
+		if (opts?.cls) div.className = opts.cls;
+		if (opts?.text) div.textContent = opts.text;
+		this.appendChild(div);
+		return div;
+	};
+
+	proto["createSpan"] = function (
+		this: HTMLElement,
+		opts?: { cls?: string; text?: string },
+	): HTMLElement {
+		const span = document.createElement("span");
+		if (opts?.cls) span.className = opts.cls;
+		if (opts?.text) span.textContent = opts.text;
+		this.appendChild(span);
+		return span;
+	};
+
+	proto["empty"] = function (this: HTMLElement): void {
+		while (this.firstChild) this.removeChild(this.firstChild);
+	};
+
+	proto["addClass"] = function (this: HTMLElement, ...classes: string[]): void {
+		this.classList.add(...classes);
+	};
+
+	proto["removeClass"] = function (this: HTMLElement, ...classes: string[]): void {
+		this.classList.remove(...classes);
+	};
+
+	proto["toggleClass"] = function (this: HTMLElement, cls: string, force?: boolean): void {
+		this.classList.toggle(cls, force);
+	};
+
+	proto["setText"] = function (this: HTMLElement, text: string): void {
+		this.textContent = text;
+	};
+}
+
+installObsidianDomHelpers();
 
 function makeObsidianEl(tag = "div"): HTMLElement {
 	return augmentEl(document.createElement(tag));
@@ -844,6 +939,13 @@ export const addIcon = vi.fn((_iconId: string, _svgContent: string): void => {})
 export const getAllTags = vi.fn(
 	(_cache: CachedMetadata): string[] | null => null,
 );
+
+/**
+ * editorInfoField — placeholder for Obsidian's CM6 StateField carrying the
+ * active file. Only dereferenced inside the live-preview widget build (a real
+ * EditorView), which unit tests don't exercise; exported so the import resolves.
+ */
+export const editorInfoField = {} as unknown;
 
 // --- Factories ---
 
