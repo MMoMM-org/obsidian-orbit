@@ -7,28 +7,43 @@ reading view AND live preview, gated by new setting `backlinkFooterEnabled`
 (default off). NOT yet PR'd; live-preview injection needs a real-Obsidian smoke
 test (see below).
 
-## Backlinks footer — added 2026-07-06
+## Backlinks footer — added 2026-07-06 (reworked same day)
 - Refactor: extracted `codeblock/BacklinkRenderChild.ts` (shared render/interaction
   base) out of `BacklinkCodeBlock`; both codeblock and footer feed it a config.
 - `footer/BacklinkFooter.ts` — settings-derived context config (style/collapse
-  left undefined so they inherit live settings); `footer/BacklinkFooterController.ts`
-  — reconciles one footer per markdown leaf, injected into the mode's content
-  sizer: `.markdown-preview-sizer` (reading) / `.cm-sizer` (source/live preview),
-  mirroring Obsidian's native "Backlinks in document". Idempotent reconcile +
-  rerender + destroy.
-- Wiring in `main.ts`: reconcile on layout-ready / layout-change / active-leaf /
-  file-open; debounced rerender on metadata+vault changes; `destroy()` registered
-  for clean unload. Toggle in SettingsTab "In-note backlinks" section.
-- Footer shows `Backlinks: 0` / `No backlinks.` when empty (deliberate — user must
-  see it works), and a `.orbital-backlink-footer` top divider separates it from
-  the note body.
-- 20 new tests (controller reconciliation + plugin integration). Mock extended:
-  Component load/unload/addChild + MarkdownView getMode/contentEl +
-  `createMockMarkdownView`. New `footer/` vitest alias.
-- **RISK / next:** the sizer injection can't be unit-tested against real Obsidian
-  DOM — must smoke-test live in `test/Orbital/` (Hub.md has a footer checklist):
-  live-preview `.cm-sizer` persistence across CM6 re-render, mode switch, split
-  panes, popout windows, and clean removal on disable.
+  left undefined so they inherit live settings); self-registers with the manager
+  on load, removes its own element on unload.
+- **Mechanism (v2, after the sizer approach failed):** the first cut injected the
+  footer into `.cm-sizer` — but Obsidian gives `.cm-content` a ~half-viewport
+  `padding-bottom` (scroll-past-end), so the footer sat a huge dynamic gap below
+  the text; reading view showed nothing (rebuilt/padded preview). Root-caused live
+  via DevTools (`cm-content paddingBottom=361px`). Retired
+  `BacklinkFooterController` (sizer injection) entirely.
+- **New: `footer/BacklinkFooterManager.ts`** renders the two mode-native ways so
+  the footer HUGS the last line: reading view → `registerMarkdownPostProcessor`
+  (append after the note's last content block, detected via `getSectionInfo`);
+  live preview/source → `registerEditorExtension` with a CodeMirror block widget
+  at `doc.length` (inside content flow, above the scroll-past padding). Uses
+  `editorInfoField` for the file; `refreshFooterEffect` (StateEffect) + preview
+  `rerender` for the settings toggle (`refreshHosts`).
+- Manager is also the footer registry: footers register on load; `refreshAll()`
+  re-renders them in place on backlink changes (wired to metadata/vault + a
+  layout-ready pass — fixes stale `Backlinks: 0` on first open). `destroy()` on
+  unload.
+- Footer shows `Backlinks: 0` / `No backlinks.` when empty (deliberate); a
+  `.orbital-backlink-footer` top divider separates it from the note body.
+- `@codemirror/view` + `@codemirror/state` added as devDependencies (runtime
+  externals from Obsidian). Mock extended: **global `HTMLElement.prototype` DOM
+  helpers** (parity with Obsidian; raw `createElement` els now have
+  `createDiv`/`empty`/etc.), Component load/unload/addChild,
+  `registerMarkdownPostProcessor`/`registerEditorExtension`, `editorInfoField`
+  stub, `createMockMarkdownView`. New `footer/` vitest alias.
+- 13 footer tests (post-processor path + registry + gating + dedupe + teardown).
+- **RISK / next:** the CM block widget can't be unit-tested (needs a real
+  EditorView) — smoke-test live in `test/Orbital/` (Hub.md checklist): live
+  preview hugs the last line (no gap), reading view now shows the footer, mode
+  switch, split panes, popout windows, clean removal on disable, and stale-count
+  no longer reproduces.
 
 ## Earlier: Spec 001-orbit-three-tab-sidebar fully implemented and finalized
 (Implemented, 2026-06-19). All 5 phases complete on branch `feat/orbit-tabs`, pushed to origin.
