@@ -1,3 +1,16 @@
+## [1.2.0](https://github.com/MMoMM-org/obsidian-orbital/compare/1.1.0...1.2.0) (2026-07-06)
+
+### Features
+
+* **footer:** add auto-footer render child + reconciliation controller ([a433561](https://github.com/MMoMM-org/obsidian-orbital/commit/a4335614627a80039dd17ac78c76d09a28f3e973))
+* **footer:** wire auto-footer into plugin, settings toggle, and styles ([76b029f](https://github.com/MMoMM-org/obsidian-orbital/commit/76b029f5ea3982725380f43468927e9fca3a888e))
+
+### Bug Fixes
+
+* **footer:** make the reading-view footer robust to unattached sections ([d116b41](https://github.com/MMoMM-org/obsidian-orbital/commit/d116b41d5d6919a904c6589fd288d7cd2fe9b116))
+* **footer:** provide the block widget via a StateField, not a ViewPlugin ([b2bed04](https://github.com/MMoMM-org/obsidian-orbital/commit/b2bed04ed1eb77a53e53598b4acc2937ca35fe2a))
+* **footer:** render via post-processor + CM widget, not sizer injection ([b23518c](https://github.com/MMoMM-org/obsidian-orbital/commit/b23518c89e08c39fee25c95de49b5632f7fb565f))
+
 ## [1.1.0](https://github.com/MMoMM-org/obsidian-orbital/compare/1.0.1...1.1.0) (2026-07-06)
 
 ### Features
