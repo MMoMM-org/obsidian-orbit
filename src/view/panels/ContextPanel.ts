@@ -62,7 +62,7 @@ const SORT_CYCLE: ContextSort[] = ["recent", "mentions", "name"];
 const SORT_ICON: Record<ContextSort, string> = {
 	recent: "clock",
 	mentions: "hash",
-	name: "arrow-down-a-z",
+	name: "case-sensitive",
 };
 const SORT_LABEL: Record<ContextSort, string> = {
 	recent: "Sort: recently modified",

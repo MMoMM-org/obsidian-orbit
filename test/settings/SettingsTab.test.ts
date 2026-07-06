@@ -30,6 +30,7 @@ function makePlugin(): OrbitalPlugin {
 	const plugin = new Plugin(app) as unknown as OrbitalPlugin;
 	plugin.settings = { ...DEFAULT_SETTINGS };
 	plugin.saveSettings = vi.fn(async () => {});
+	plugin._refreshOrbitalPanels = vi.fn();
 	return plugin;
 }
 

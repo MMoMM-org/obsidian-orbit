@@ -105,6 +105,7 @@ export class SettingsTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.contextTabAmount = value as ContextAmount;
 						await this.plugin.saveSettings();
+						this.plugin._refreshOrbitalPanels();
 					}),
 			);
 
@@ -119,6 +120,7 @@ export class SettingsTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.contextTabStyle = value as ContextStyle;
 						await this.plugin.saveSettings();
+						this.plugin._refreshOrbitalPanels();
 					}),
 			);
 
@@ -134,6 +136,7 @@ export class SettingsTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.contextTabSort = value as ContextSort;
 						await this.plugin.saveSettings();
+						this.plugin._refreshOrbitalPanels();
 					}),
 			);
 
@@ -146,6 +149,7 @@ export class SettingsTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.contextTabCollapse = value;
 						await this.plugin.saveSettings();
+						this.plugin._refreshOrbitalPanels();
 					}),
 			);
 	}

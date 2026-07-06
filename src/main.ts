@@ -466,6 +466,11 @@ export default class OrbitalPlugin extends Plugin {
 		});
 	}
 
+	/** Repaint open Orbital panels — called by settings that affect a live panel. */
+	_refreshOrbitalPanels(): void {
+		this._repaintActivePanel();
+	}
+
 	/** Repaint the active OrbitalView panel if a view is open, and refresh the status bar. */
 	private _repaintActivePanel(): void {
 		this._updateStatusBar();
@@ -488,7 +493,7 @@ export default class OrbitalPlugin extends Plugin {
 		const item = this.addStatusBarItem();
 		item.addClass("orbital-statusbar", "mod-clickable");
 		this.registerDomEvent(item, "click", () => {
-			void this._openRelations();
+			void this._openOrbital();
 		});
 		this._statusBarItem = item;
 		this._updateStatusBar();
@@ -536,26 +541,19 @@ export default class OrbitalPlugin extends Plugin {
 			label = `${backlinks}/${secondHop}`;
 			tooltip =
 				`Orbital — ${backlinks} backlink${backlinks === 1 ? "" : "s"}, ` +
-				`${secondHop} 2nd-hop note${secondHop === 1 ? "" : "s"}.\nClick to open Relations.`;
+				`${secondHop} 2nd-hop note${secondHop === 1 ? "" : "s"}.\nClick to open Orbital.`;
 		}
 
 		item.createSpan({ cls: "orbital-statusbar-text", text: label });
 		setTooltip(item, tooltip);
 	}
 
-	/** Open (or focus) the Orbital view and switch it to the Relations tab. */
-	private async _openRelations(): Promise<void> {
+	/**
+	 * Open (or focus) the Orbital view, keeping its current/default tab
+	 * (Context by default) rather than forcing a specific one.
+	 */
+	private async _openOrbital(): Promise<void> {
 		await this.activateView();
-		const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE);
-		for (const leaf of leaves) {
-			const view = leaf.view;
-			if (view instanceof OrbitalView) {
-				void view.setState(
-					{ ...view.getState(), activeTab: "relations" },
-					{ history: false },
-				);
-			}
-		}
 	}
 
 	private async activateView(): Promise<void> {
