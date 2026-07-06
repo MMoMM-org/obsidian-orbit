@@ -20,10 +20,10 @@
 
 import { editorInfoField } from "obsidian";
 import type { MarkdownPostProcessorContext } from "obsidian";
-import { Decoration, ViewPlugin, WidgetType } from "@codemirror/view";
-import type { DecorationSet, EditorView, ViewUpdate } from "@codemirror/view";
-import { StateEffect } from "@codemirror/state";
-import type { Extension } from "@codemirror/state";
+import { Decoration, EditorView, WidgetType } from "@codemirror/view";
+import type { DecorationSet } from "@codemirror/view";
+import { StateEffect, StateField } from "@codemirror/state";
+import type { EditorState, Extension } from "@codemirror/state";
 import { BacklinkFooter } from "footer/BacklinkFooter";
 import type { FooterRegistry } from "footer/BacklinkFooter";
 import type { BacklinkDeps } from "codeblock/BacklinkRenderChild";
@@ -147,8 +147,11 @@ export class BacklinkFooterManager implements FooterRegistry {
 }
 
 // ---------------------------------------------------------------------------
-// Live preview / source — CodeMirror block widget (module scope so the manager
-// is a parameter, not a `this` alias captured inside nested classes)
+// Live preview / source — CodeMirror block widget.
+//
+// Block decorations MUST be provided by a StateField (not a ViewPlugin) —
+// CodeMirror computes block heights before plugins run and throws otherwise.
+// Module scope keeps the manager a parameter, not a captured `this` alias.
 // ---------------------------------------------------------------------------
 
 function createFooterEditorExtension(mgr: BacklinkFooterManager): Extension {
@@ -186,37 +189,31 @@ function createFooterEditorExtension(mgr: BacklinkFooterManager): Extension {
 		}
 	}
 
-	const build = (view: EditorView): DecorationSet => {
+	const build = (state: EditorState): DecorationSet => {
 		if (!mgr.enabled()) return Decoration.none;
-		const file = view.state.field(editorInfoField, false)?.file ?? null;
+		const file = state.field(editorInfoField, false)?.file ?? null;
 		if (!file || !mgr.eligible(file.path)) return Decoration.none;
 		const deco = Decoration.widget({
 			widget: new FooterWidget(file.path),
 			block: true,
 			side: 1,
 		});
-		return Decoration.set([deco.range(view.state.doc.length)]);
+		// Block widget at the document end — inside the content flow, above the
+		// editor's scroll-past-end padding, so it hugs the last line.
+		return Decoration.set([deco.range(state.doc.length)]);
 	};
 
-	return ViewPlugin.fromClass(
-		class {
-			decorations: DecorationSet;
-
-			constructor(view: EditorView) {
-				this.decorations = build(view);
-			}
-
-			update(update: ViewUpdate): void {
-				const forced = update.transactions.some((tr) =>
-					tr.effects.some((e) => e.is(refreshFooterEffect)),
-				);
-				const prev = update.startState.field(editorInfoField, false)?.file ?? null;
-				const cur = update.state.field(editorInfoField, false)?.file ?? null;
-				if (update.docChanged || forced || prev !== cur) {
-					this.decorations = build(update.view);
-				}
-			}
+	return StateField.define<DecorationSet>({
+		create: (state) => build(state),
+		update: (value, tr) => {
+			const forced = tr.effects.some((e) => e.is(refreshFooterEffect));
+			const prev = tr.startState.field(editorInfoField, false)?.file ?? null;
+			const cur = tr.state.field(editorInfoField, false)?.file ?? null;
+			// Only the doc end position or eligibility can change what we render;
+			// a non-doc transaction leaves the widget where it is.
+			if (tr.docChanged || forced || prev !== cur) return build(tr.state);
+			return value;
 		},
-		{ decorations: (value) => value.decorations },
-	);
+		provide: (field) => EditorView.decorations.from(field),
+	});
 }
