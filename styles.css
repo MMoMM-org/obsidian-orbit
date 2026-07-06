@@ -733,3 +733,211 @@
 .orbital-confirm-btn {
 	margin-top: 8px;
 }
+
+/* ── Backlinks codeblock (002-backlink-codeblock — Phase 2) ──────────────────
+   In-note `orbital-backlinks` block. Native tree-item / search-result classes
+   supply the theme look; the orbital- hooks below add spacing only. Colors come
+   exclusively from theme tokens.
+   ─────────────────────────────────────────────────────────────────────────*/
+
+.orbital-backlink-count {
+	font-size: var(--font-small);
+	font-weight: var(--font-semibold);
+	color: var(--text-muted);
+	margin-bottom: 6px;
+}
+
+.orbital-backlink-item {
+	padding: 2px 6px;
+	cursor: pointer;
+	color: var(--text-normal);
+}
+
+.orbital-backlink-item:hover {
+	color: var(--text-accent);
+}
+
+.orbital-backlink-group {
+	margin-bottom: 8px;
+}
+
+.orbital-backlink-group-title {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	padding: 2px 6px;
+	cursor: pointer;
+	color: var(--text-normal);
+	font-size: var(--font-ui-small);
+	font-weight: var(--font-semibold);
+}
+
+.orbital-backlink-group-title:hover {
+	color: var(--text-accent);
+}
+
+.orbital-backlink-snippet {
+	padding: 3px 8px;
+	font-size: var(--font-ui-small);
+	color: var(--text-muted);
+	cursor: pointer;
+	border: none;
+	border-radius: var(--radius-s);
+	background: none;
+}
+
+.orbital-backlink-empty {
+	font-size: var(--font-small);
+	color: var(--text-faint);
+	padding: 2px 6px;
+}
+
+.orbital-backlink-notice {
+	font-size: var(--font-small);
+	color: var(--text-faint);
+	margin-top: 6px;
+}
+
+.orbital-backlink-more {
+	font-size: var(--font-small);
+	color: var(--text-faint);
+	padding: 2px 6px;
+}
+
+.orbital-backlink-error {
+	font-size: var(--font-small);
+	color: var(--text-error);
+	padding: 2px 6px;
+}
+
+/* ── Backlinks codeblock v1.1 — context styles, chevron, collapse ────────────
+   `style: dense|cards` (or the setting) picks a layout; the chevron/title fold a
+   source group; context lines are clickable to open the note at that line.
+   ─────────────────────────────────────────────────────────────────────────*/
+
+/* Title row layout (chevron + label) lives with the base rule above;
+   the title toggles the fold. */
+.orbital-backlink-chevron {
+	display: inline-flex;
+	width: 14px;
+	height: 14px;
+	flex: 0 0 auto;
+	align-items: center;
+	justify-content: center;
+	color: var(--text-faint);
+	transition: transform 0.12s ease;
+}
+
+.orbital-backlink-chevron::before {
+	content: "";
+	width: 0;
+	height: 0;
+	border-top: 4px solid transparent;
+	border-bottom: 4px solid transparent;
+	border-left: 5px solid currentColor; /* points right when collapsed */
+}
+
+/* Expanded groups point the chevron down and show the matches. */
+.orbital-backlink-group:not(.is-collapsed) .orbital-backlink-chevron {
+	transform: rotate(90deg);
+}
+
+.orbital-backlink-group.is-collapsed .search-result-file-matches {
+	display: none;
+}
+
+/* Accent-coloured source title (mockup look). */
+.orbital-backlink-group-title .orbital-backlink-item-label {
+	color: var(--text-accent);
+}
+
+/* Per-source occurrence count, right-aligned (native Linked-mentions parity). */
+.orbital-backlink-group-count {
+	margin-left: auto;
+	padding-left: 8px;
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+	font-variant-numeric: tabular-nums;
+}
+
+/* Context lines are clickable (open note at that line). */
+.orbital-backlink-snippet:hover {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
+/* ---- Dense style (default) ---- */
+/* Group spacing comes from the base .orbital-backlink-group rule (8px). */
+
+/* One frame around all context lines of a source. box-sizing + a right margin
+   keep the right border inside the note's rendering frame (it was clipped). */
+.orbital-backlink-context--dense .search-result-file-matches {
+	box-sizing: border-box;
+	margin: 2px 6px 2px 20px;
+	padding: 3px 8px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+}
+
+.orbital-backlink-context--dense .orbital-backlink-snippet {
+	position: relative;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Divider between context lines, inset to the text on both sides. */
+.orbital-backlink-context--dense .orbital-backlink-snippet + .orbital-backlink-snippet::before {
+	content: "";
+	position: absolute;
+	inset: 0 8px auto 8px;
+	border-top: 1px solid var(--background-modifier-border);
+}
+
+/* ---- Cards style ---- */
+.orbital-backlink-context--cards .orbital-backlink-group {
+	position: relative;
+	overflow: hidden;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	background: var(--background-primary-alt);
+	margin-bottom: 10px;
+}
+
+.orbital-backlink-context--cards .orbital-backlink-group::before {
+	content: "";
+	position: absolute;
+	inset: 0 auto 0 0;
+	width: 3px;
+	background: var(--interactive-accent);
+	opacity: 0.55;
+}
+
+.orbital-backlink-context--cards .orbital-backlink-group-title {
+	padding: 8px 12px;
+}
+
+.orbital-backlink-context--cards .orbital-backlink-group-count {
+	padding: 1px 8px;
+	border-radius: var(--radius-l);
+	background: var(--background-modifier-hover);
+}
+
+.orbital-backlink-context--cards .search-result-file-matches {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 6px 12px 10px 32px;
+}
+
+/* Cards give each context line its own full box (all four borders). */
+.orbital-backlink-context--cards .orbital-backlink-snippet {
+	box-sizing: border-box;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+	background: var(--background-primary);
+}
+
+.orbital-backlink-context--cards .orbital-backlink-snippet:hover {
+	border-color: var(--text-accent);
+}

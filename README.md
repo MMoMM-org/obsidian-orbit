@@ -16,6 +16,7 @@ It works on desktop and mobile, and reads Obsidian's own link graph — there's 
 - **Dangling links** — every unresolved `[[link]]` across the vault (or just the current folder), grouped by target or by source, with bulk **rename/merge**, **change to alias**, **create note**, and **delete** — each preview-confirmed and never silent. Apart from **create note**, these only rewrite the link text in your notes (e.g. **delete** turns a dangling `[[link]]` back into plain text) — they never create, move, or remove a target file.
 - **Recent files** — a most-recent-first list of opened notes; drag a row into an editor to insert a `[[wikilink]]`, or click to open.
 - **Status bar** — an item showing backlink / 2nd-hop counts for the active note; click it to jump to the Relations tab.
+- **In-note backlinks (`orbital-backlinks`)** — a fenced code block that renders the containing note's backlinks inline, in reading view and live preview. Filter sources by folder or tag, choose between a compact link list and a context view that shows the surrounding text, and let the block update automatically as the vault changes. See the [Usage guide](docs/usage.md#in-note-backlinks-orbital-backlinks) for syntax and all options.
 
 See the [**Usage guide**](docs/usage.md) for screenshots and the full walkthrough.
 

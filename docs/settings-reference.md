@@ -146,6 +146,27 @@ These settings appear at the top of the settings tab, above the first heading.
 - **When to change:** turn on when reproducing a bug to capture detail for a report
   (see [Troubleshooting](troubleshooting.md)); leave off otherwise.
 
+## In-note backlinks (`orbital-backlinks`)
+
+Two settings set the **context-mode defaults** for the `orbital-backlinks` code
+block. A block's own `style:` / `collapse:` keys override them; all other options
+(display mode, folder and tag filters) live in the block's markdown source. See
+the [Usage guide](usage.md#in-note-backlinks-orbital-backlinks) for the full syntax.
+
+### Context style
+
+- **Effect:** default visual style for context mode — **Dense** (compact list with
+  a vertical rule) or **Cards** (one bordered card per source).
+- **Default:** Dense.
+- **Override per block:** `style: dense|cards`.
+
+### Collapse context by default
+
+- **Effect:** when on, context-mode source groups start folded; click a chevron or
+  title to unfold. Fold state is per block and not persisted.
+- **Default:** off (expanded).
+- **Override per block:** `collapse: true|false`.
+
 ## See also
 
 - [Configuration](configuration.md) — the at-a-glance name/type/default table.

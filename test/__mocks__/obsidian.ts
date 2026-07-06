@@ -219,8 +219,41 @@ export class Plugin extends Component {
 	onLayoutReady = vi.fn((cb: () => void) => {
 		cb();
 	});
+	/**
+	 * registerMarkdownCodeBlockProcessor — records (lang, handler) so tests can
+	 * assert registration and invoke the handler with a synthetic context.
+	 */
+	registerMarkdownCodeBlockProcessor = vi.fn(
+		(
+			_language: string,
+			_handler: (
+				source: string,
+				el: HTMLElement,
+				ctx: unknown,
+			) => void | Promise<void>,
+		) => {},
+	);
 	/** onExternalSettingsChange: called by Obsidian when settings change on disk. */
 	onExternalSettingsChange?: () => void | Promise<void>;
+}
+
+/**
+ * MarkdownRenderChild — Obsidian lifecycle object mounted into rendered
+ * markdown. Extends Component so registerEvent/register/registerDomEvent and
+ * _runCleanup() work; carries the containerEl it renders into. Subclasses
+ * override onload/onunload.
+ */
+export class MarkdownRenderChild extends Component {
+	containerEl: HTMLElement;
+
+	constructor(containerEl: HTMLElement) {
+		super();
+		this.containerEl = containerEl;
+	}
+
+	onload(): void {}
+
+	onunload(): void {}
 }
 
 // --- UI Components ---

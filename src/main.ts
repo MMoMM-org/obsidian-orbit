@@ -6,6 +6,8 @@ import { DEFAULT_SETTINGS, type OrbitalSettings } from "types/index";
 import { OrbitalView, VIEW_TYPE } from "view/OrbitalView";
 import type { RelationsDeps, DanglingDeps, RecentDeps } from "view/OrbitalView";
 import { LinkGraphIndex } from "graph/LinkGraphIndex";
+import { BacklinkCodeBlock } from "codeblock/BacklinkCodeBlock";
+import type { BacklinkDeps } from "codeblock/BacklinkCodeBlock";
 import { ExclusionMatcher } from "shared/ExclusionMatcher";
 import { LinkRewriteService } from "links/LinkRewriteService";
 import { MentionLinkService } from "links/MentionLinkService";
@@ -99,6 +101,12 @@ export default class OrbitalPlugin extends Plugin {
 		});
 
 		this.addSettingTab(new SettingsTab(this.app, this));
+
+		this.registerMarkdownCodeBlockProcessor("orbital-backlinks", (source, el, ctx) => {
+			ctx.addChild(
+				new BacklinkCodeBlock(el, source, ctx.sourcePath, this._buildBacklinkDeps()),
+			);
+		});
 
 		this._wireEvents();
 		this._buildStatusBar();
@@ -217,6 +225,25 @@ export default class OrbitalPlugin extends Plugin {
 			// rebuild the same way file create/delete/rename do — the 'resolved'
 			// handler then rebuilds the index and repaints the dangling list.
 			requestRebuild: (): void => { this._structuralChange = true; },
+		};
+	}
+
+	// ---------------------------------------------------------------------------
+	// Private — Backlink codeblock deps factory
+	// ---------------------------------------------------------------------------
+
+	/**
+	 * Build the BacklinkDeps bundle each `orbital-backlinks` block needs.
+	 * Mirrors _buildRelationsDeps: reuses the plugin-scoped index, live settings,
+	 * and the single _isExcluded source of truth. No cast needed — BacklinkDeps.app
+	 * is the real Obsidian App.
+	 */
+	private _buildBacklinkDeps(): BacklinkDeps {
+		return {
+			index: this._index,
+			app: this.app,
+			getSettings: () => this.settings,
+			isExcluded: (path: string): boolean => this._isExcluded(path),
 		};
 	}
 
