@@ -851,9 +851,11 @@
 	color: var(--text-accent);
 }
 
-/* Per-source occurrence count, right-aligned (native Linked-mentions parity). */
+/* Per-source occurrence count, right-aligned (native Linked-mentions parity).
+   A small right margin keeps it off the frame edge (nudged left). */
 .orbital-backlink-group-count {
 	margin-left: auto;
+	margin-right: 6px;
 	padding-left: 8px;
 	color: var(--text-muted);
 	font-size: var(--font-ui-smaller);
