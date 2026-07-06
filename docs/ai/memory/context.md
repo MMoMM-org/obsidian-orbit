@@ -39,11 +39,15 @@ test (see below).
   `registerMarkdownPostProcessor`/`registerEditorExtension`, `editorInfoField`
   stub, `createMockMarkdownView`. New `footer/` vitest alias.
 - 13 footer tests (post-processor path + registry + gating + dedupe + teardown).
-- **RISK / next:** the CM block widget can't be unit-tested (needs a real
-  EditorView) — smoke-test live in `test/Orbital/` (Hub.md checklist): live
-  preview hugs the last line (no gap), reading view now shows the footer, mode
-  switch, split panes, popout windows, clean removal on disable, and stale-count
-  no longer reproduces.
+- **Verified live 2026-07-06:** live preview hugs the last line (no gap), reading
+  view shows the footer, count nudged, stale-count gone. Two live gotchas fixed
+  and recorded in troubleshooting.md: (1) CM block widgets must come from a
+  StateField, not a ViewPlugin; (2) a reading-view section can be post-processed
+  before it is attached (`el.parentElement` null) → append into the section
+  wrapper as a fallback. Gated `[Orbital footer]` debug logs behind the
+  debugLogging setting (console.debug → needs DevTools "Verbose" level).
+- **Next:** PR `feat/backlink-footer` → main. Optional deeper live checks: split
+  panes, popout windows.
 
 ## Earlier: Spec 001-orbit-three-tab-sidebar fully implemented and finalized
 (Implemented, 2026-06-19). All 5 phases complete on branch `feat/orbit-tabs`, pushed to origin.

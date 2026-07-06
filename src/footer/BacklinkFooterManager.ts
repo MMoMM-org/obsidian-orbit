@@ -114,27 +114,55 @@ export class BacklinkFooterManager implements FooterRegistry {
 		if (!this.enabled()) return;
 		const path = ctx.sourcePath;
 		const file = this.deps.app.vault.getFileByPath(path);
-		if (!file || !this.eligible(file.path)) return;
+		if (!file || !this.eligible(file.path)) {
+			this.debug("skip: not eligible", path);
+			return;
+		}
 
 		const info = ctx.getSectionInfo(el);
-		if (!info) return;
-		const after = info.text.split("\n").slice(info.lineEnd + 1).join("\n").trim();
+		if (!info) {
+			this.debug("skip: no sectionInfo", el.tagName, el.className);
+			return;
+		}
+		const lines = info.text.split("\n");
+		const after = lines.slice(info.lineEnd + 1).join("\n").trim();
+		this.debug("block", {
+			tag: el.tagName,
+			lineEnd: info.lineEnd,
+			total: lines.length,
+			lastBlock: after === "",
+			attached: el.isConnected,
+		});
 		if (after !== "") return; // not the last content block
 
-		const parent = el.parentElement;
-		if (!parent) return;
-		parent
-			.querySelectorAll(`:scope > .${FOOTER_CLASS}`)
-			.forEach((node) => node.remove());
-
-		// ownerDocument keeps this correct in popout windows (and is test-safe).
 		const footerEl = el.ownerDocument.createElement("div");
 		footerEl.classList.add(FOOTER_CLASS);
-		el.insertAdjacentElement("afterend", footerEl);
+
+		const parent = el.parentElement;
+		if (parent) {
+			// Clean: place the footer as a sibling right after the last block.
+			parent
+				.querySelectorAll(`:scope > .${FOOTER_CLASS}`)
+				.forEach((node) => node.remove());
+			el.insertAdjacentElement("afterend", footerEl);
+		} else {
+			// A section can be post-processed before it is attached; append into
+			// the section wrapper so it travels with it when Obsidian attaches it.
+			el.querySelectorAll(`:scope > .${FOOTER_CLASS}`).forEach((node) => node.remove());
+			el.appendChild(footerEl);
+		}
 
 		const footer = new BacklinkFooter(footerEl, file.path, this.deps, this);
 		ctx.addChild(footer);
+		this.debug("footer appended", { path: file.path, viaParent: parent !== null });
 	};
+
+	/** Gated diagnostics — enable Settings → Orbital → Advanced → Debug logging. */
+	private debug(...args: unknown[]): void {
+		if (this.deps.getSettings().debugLogging) {
+			console.debug("[Orbital footer]", ...args);
+		}
+	}
 
 	// -------------------------------------------------------------------------
 	// Live preview / source — CodeMirror block widget
