@@ -8,6 +8,7 @@ import type { RelationsDeps, DanglingDeps, RecentDeps } from "view/OrbitalView";
 import { LinkGraphIndex } from "graph/LinkGraphIndex";
 import { BacklinkCodeBlock } from "codeblock/BacklinkCodeBlock";
 import type { BacklinkDeps } from "codeblock/BacklinkCodeBlock";
+import { BacklinkFooterController } from "footer/BacklinkFooterController";
 import { ExclusionMatcher } from "shared/ExclusionMatcher";
 import { LinkRewriteService } from "links/LinkRewriteService";
 import { MentionLinkService } from "links/MentionLinkService";
@@ -54,6 +55,12 @@ export default class OrbitalPlugin extends Plugin {
 
 	/** Debounced handler for active-leaf-change events (trailing). */
 	_refreshDebouncer: Debouncer<[], void> | null = null;
+
+	/** Auto-footer controller — injects backlink footers into open notes. */
+	_footerController: BacklinkFooterController | null = null;
+
+	/** Debounced footer content refresh (reconcile + rerender) for edits. */
+	_footerRefreshDebouncer: Debouncer<[], void> | null = null;
 
 	/** True once the index has been built (at layout-ready). */
 	private _indexBuilt = false;
@@ -107,6 +114,9 @@ export default class OrbitalPlugin extends Plugin {
 				new BacklinkCodeBlock(el, source, ctx.sourcePath, this._buildBacklinkDeps()),
 			);
 		});
+
+		this._footerController = new BacklinkFooterController(this._buildBacklinkDeps());
+		this.register(() => this._footerController?.destroy());
 
 		this._wireEvents();
 		this._buildStatusBar();
@@ -289,11 +299,48 @@ export default class OrbitalPlugin extends Plugin {
 		this._wireDebouncedLeafChange();
 		this._wireVaultEvents();
 		this._wireMetadataCacheEvents();
+		this._wireFooterEvents();
+	}
+
+	/**
+	 * Footer wiring. Structural events (leaf/layout change) reconcile which notes
+	 * carry a footer and in which sizer; content events (edits, file add/remove)
+	 * flow through _footerRefreshDebouncer, which reconciles AND re-renders each
+	 * footer's backlinks. active-leaf-change and file-open reconcile through the
+	 * existing panel handlers (see _wireDebouncedLeafChange / _wireVaultEvents).
+	 */
+	private _wireFooterEvents(): void {
+		const debounced = debounce(
+			(): void => {
+				this._footerController?.reconcile();
+				this._footerController?.rerender();
+			},
+			this.settings.refreshDebounceMs,
+			true,
+		);
+		this._footerRefreshDebouncer = debounced;
+		this.register(() => this._footerRefreshDebouncer?.cancel());
+
+		// The preview/editor sizers only exist once layout is ready; reconcile then
+		// so footers appear for notes already open at startup.
+		this.app.workspace.onLayoutReady(() => this._footerController?.reconcile());
+
+		this.registerEvent(
+			this.app.workspace.on("layout-change", () => {
+				this._footerController?.reconcile();
+			}),
+		);
+	}
+
+	/** Reconcile footers now (structural) — used by leaf/file-open handlers and the settings toggle. */
+	_reconcileFooters(): void {
+		this._footerController?.reconcile();
 	}
 
 	private _wireDebouncedLeafChange(): void {
 		const refreshFn = (): void => {
 			this._repaintActivePanel();
+			this._footerController?.reconcile();
 		};
 
 		const debounced = debounce(refreshFn, this.settings.refreshDebounceMs, true);
@@ -331,6 +378,7 @@ export default class OrbitalPlugin extends Plugin {
 				this._mentionService.invalidate();
 				if (this._indexBuilt) this._structuralChange = true;
 				this._repaintActivePanel();
+				this._footerRefreshDebouncer?.();
 			}),
 		);
 
@@ -341,6 +389,7 @@ export default class OrbitalPlugin extends Plugin {
 				this._mentionService.invalidate();
 				if (this._indexBuilt) this._structuralChange = true;
 				this._repaintActivePanel();
+				this._footerRefreshDebouncer?.();
 			}),
 		);
 
@@ -350,6 +399,8 @@ export default class OrbitalPlugin extends Plugin {
 					void this._recentStore.onFileOpen(file.path, file.basename);
 					this._repaintActivePanel();
 				}
+				// A leaf may have swapped to a new note (or none) — reconcile its footer.
+				this._footerController?.reconcile();
 			}),
 		);
 	}
@@ -362,6 +413,7 @@ export default class OrbitalPlugin extends Plugin {
 				this._index.updateFile(file.path);
 				this._mentionService.invalidate();
 				this._repaintActivePanel();
+				this._footerRefreshDebouncer?.();
 			}),
 		);
 
@@ -392,6 +444,7 @@ export default class OrbitalPlugin extends Plugin {
 				this._index.buildFull();
 				this._mentionService.invalidate();
 				this._repaintActivePanel();
+				this._footerController?.rerender();
 				this._log.debug("index rebuilt after structural change");
 			}, this.settings.refreshDebounceMs, true);
 			this.register(() => rebuildOnResolved.cancel());

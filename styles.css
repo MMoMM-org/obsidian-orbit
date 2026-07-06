@@ -941,3 +941,15 @@
 .orbital-backlink-context--cards .orbital-backlink-snippet:hover {
 	border-color: var(--text-accent);
 }
+
+/* ── Backlinks footer (v1.2 auto-footer) ─────────────────────────────────────
+   Auto-appended into the note's content sizer (reading + live preview). A top
+   divider separates it from the note body, matching Obsidian's native
+   "Backlinks in document" footer.
+   ─────────────────────────────────────────────────────────────────────────*/
+
+.orbital-backlink-footer {
+	margin-top: 2em;
+	padding-top: 1em;
+	border-top: 1px solid var(--background-modifier-border);
+}
