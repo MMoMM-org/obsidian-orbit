@@ -92,6 +92,22 @@ sort: name
 ```
 _Expect: falls back to compact AND shows a subtle inline warning ("invalid display value 'fancy'…", "unknown key 'sort'"). No crash._
 
+## Backlinks footer — verification (v1.2)
+
+> The footer is **not** a code block. Enable **Settings → Orbital → In-note
+> backlinks → Show backlinks footer**, then look at the **very bottom** of this
+> note (below everything, past a divider line).
+
+_Expect, with the setting **on**:_
+- A divider, then `Backlinks: N` and a **context** view of Hub's linkers —
+  identical styling to block 2 above, following the **Context style** setting.
+- It appears in **reading view AND live preview** (toggle with Cmd/Ctrl-E).
+- Toggle **Context style** dense↔cards / **Collapse by default** → the footer
+  follows on the next repaint.
+- Open a note with **no** backlinks (e.g. a fresh scratch note) → the footer
+  still shows `Backlinks: 0` / `No backlinks.`
+- Turn the setting **off** → the footer disappears from every open note.
+
 ### Checklist
 - [ ] 1 renders in reading view **and** live preview
 - [ ] 2 shows highlighted context lines
@@ -100,3 +116,5 @@ _Expect: falls back to compact AND shows a subtle inline warning ("invalid displ
 - [ ] 7 exclude removes only Zettelkasten
 - [ ] 8 warning shown, no crash
 - [ ] edit a linker (add/remove `[[Hub]]`) → a block updates within ~1s (live refresh)
+- [ ] footer appears at note end in reading view **and** live preview when enabled
+- [ ] footer shows `No backlinks.` on a note with none · [ ] footer vanishes when disabled
