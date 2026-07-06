@@ -867,9 +867,7 @@
 }
 
 /* ---- Dense style (default) ---- */
-.orbital-backlink-context--dense .orbital-backlink-group {
-	margin-bottom: 8px;
-}
+/* Group spacing comes from the base .orbital-backlink-group rule (8px). */
 
 /* One frame around all context lines of a source. box-sizing + a right margin
    keep the right border inside the note's rendering frame (it was clipped). */
