@@ -379,7 +379,7 @@ describe("SettingsTab — dropdown persistence", () => {
 		const container = renderTab(tab);
 
 		const settingEl = Array.from(container.querySelectorAll("[data-setting-name]"))
-			.find((el) => el.getAttribute("data-setting-name")?.toLowerCase().includes("group"));
+			.find((el) => el.getAttribute("data-setting-name")?.toLowerCase().includes("grouping"));
 		const select = settingEl?.querySelector("select") as HTMLSelectElement | null;
 		expect(select).not.toBeNull();
 
@@ -406,6 +406,24 @@ describe("SettingsTab — dropdown persistence", () => {
 		await flush();
 
 		expect(plugin.settings.defaultTab).toBe("dangling");
+		expect(plugin.saveSettings).toHaveBeenCalled();
+	});
+
+	it("contextTabAmount: change event persists value", async () => {
+		const plugin = makePlugin();
+		const tab = makeTab(plugin);
+		const container = renderTab(tab);
+
+		const settingEl = Array.from(container.querySelectorAll("[data-setting-name]"))
+			.find((el) => el.getAttribute("data-setting-name")?.toLowerCase().includes("context amount"));
+		const select = settingEl?.querySelector("select") as HTMLSelectElement | null;
+		expect(select).not.toBeNull();
+
+		select!.value = "surroundingLines";
+		select!.dispatchEvent(new Event("change", { bubbles: true }));
+		await flush();
+
+		expect(plugin.settings.contextTabAmount).toBe("surroundingLines");
 		expect(plugin.saveSettings).toHaveBeenCalled();
 	});
 });

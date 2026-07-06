@@ -1,6 +1,13 @@
 import type OrbitalPlugin from "main";
 import { type App, PluginSettingTab, Setting } from "obsidian";
-import type { ContextStyle, DanglingGrouping, DanglingScope, TabId } from "types/index";
+import type {
+	ContextAmount,
+	ContextSort,
+	ContextStyle,
+	DanglingGrouping,
+	DanglingScope,
+	TabId,
+} from "types/index";
 
 import { FolderSuggest } from "./FolderSuggest";
 import { HeaderSection } from "./HeaderSection";
@@ -24,6 +31,7 @@ export class SettingsTab extends PluginSettingTab {
 		this.header.render(headerEl);
 
 		this.renderGeneralSection(containerEl);
+		this.renderContextTabSection(containerEl);
 		this.renderRelationsSection(containerEl);
 		this.renderBacklinksSection(containerEl);
 		this.renderDanglingSection(containerEl);
@@ -44,6 +52,7 @@ export class SettingsTab extends PluginSettingTab {
 			.setDesc("Which tab to show when the orbit pane opens.")
 			.addDropdown((dropdown) =>
 				dropdown
+					.addOption("context", "Context")
 					.addOption("relations", "Relations")
 					.addOption("dangling", "Dangling links")
 					.addOption("recent", "Recent notes")
@@ -76,6 +85,67 @@ export class SettingsTab extends PluginSettingTab {
 						this.plugin.settings.showStatusBar = value;
 						await this.plugin.saveSettings();
 						this.plugin._refreshStatusBar();
+					}),
+			);
+	}
+
+	private renderContextTabSection(containerEl: HTMLElement): void {
+		new Setting(containerEl).setName("Context tab").setHeading();
+
+		new Setting(containerEl)
+			.setName("Context amount")
+			.setDesc("How much surrounding text each backlink shows in the context tab. More context is easier to read; less is more scannable.")
+			.addDropdown((dropdown) =>
+				dropdown
+					.addOption("compact", "Compact")
+					.addOption("comfortable", "Comfortable")
+					.addOption("fullLine", "Full line")
+					.addOption("surroundingLines", "Surrounding lines")
+					.setValue(this.plugin.settings.contextTabAmount)
+					.onChange(async (value) => {
+						this.plugin.settings.contextTabAmount = value as ContextAmount;
+						await this.plugin.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
+			.setName("Style")
+			.setDesc("Default visual style for the context tab (independent of the code block and footer). You can also toggle it from the tab's toolbar.")
+			.addDropdown((dropdown) =>
+				dropdown
+					.addOption("dense", "Dense")
+					.addOption("cards", "Cards")
+					.setValue(this.plugin.settings.contextTabStyle)
+					.onChange(async (value) => {
+						this.plugin.settings.contextTabStyle = value as ContextStyle;
+						await this.plugin.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
+			.setName("Sort")
+			.setDesc("Default order for source notes in the context tab. The tab's sort button cycles through these.")
+			.addDropdown((dropdown) =>
+				dropdown
+					.addOption("recent", "Recently modified")
+					.addOption("mentions", "Mention count")
+					.addOption("name", "Name")
+					.setValue(this.plugin.settings.contextTabSort)
+					.onChange(async (value) => {
+						this.plugin.settings.contextTabSort = value as ContextSort;
+						await this.plugin.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
+			.setName("Collapse groups by default")
+			.setDesc("Start each source group folded in the context tab.")
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.contextTabCollapse)
+					.onChange(async (value) => {
+						this.plugin.settings.contextTabCollapse = value;
+						await this.plugin.saveSettings();
 					}),
 			);
 	}
