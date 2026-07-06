@@ -1,5 +1,35 @@
 # Context Memory
 
+## Context tab (v1.3) — added 2026-07-06, on branch feat/context-tab
+New sidebar tab showing the ACTIVE note's backlinks with surrounding context —
+the first tab and the default. Reuses the codeblock/footer rendering.
+- `graph/backlinkContext.ts`: ContextAmount windowing (compact 90 / comfortable
+  180 / fullLine = whole line) + optional surrounding-lines (leadLine/trailLine).
+  ContextAmount/ContextSort types live in types/index.
+- `codeblock/backlinkContextRender.ts`: shared group/snippet DOM builder
+  extracted from BacklinkRenderChild (which now delegates to it); adds dimmed
+  lead/trail lines. Injected open/hover/register callbacks per host.
+- `view/panels/ContextPanel.ts`: active-note panel + toolbar (collapse-all ·
+  sort[recent/mentions/name] · dense/cards · search-by-name). Toolbar state is
+  view-owned (OrbitalView `_context*` fields, seeded from settings; overrides
+  win for the session). Amount comes from settings.
+- TabBar: Context first + per-tab Lucide icons (links-coming-in / waypoints /
+  unlink / history); OrbitalView.onResize → setNarrow(<320px) = icon-only.
+  `defaultTab` is now actually honored as the initial tab (was unwired) and
+  defaults to "context".
+- Settings: contextTabAmount (comfortable) / contextTabStyle (cards) /
+  contextTabSort (recent) / contextTabCollapse (off); "Context tab" settings
+  section; Context added to Default-tab dropdown. Settings onChange calls
+  `_refreshOrbitalPanels()` to repaint the open tab live.
+- Status-bar click now opens the pane on its current/default tab (was: forced
+  Relations). `_openRelations` → `_openOrbital`.
+- Gotcha: Lucide "arrow-down-a-z" isn't in Obsidian's icon set (blank) → used
+  "case-sensitive" for name-sort.
+- 797 tests pass; docs done (usage #context-tab, settings-reference, config,
+  screenshots tab-content.png + settings-context-tab.png). Mockup parked on
+  branch design/context-tab-mockup (pushed to origin, not merged).
+- **Next:** live-verified by user; PR feat/context-tab → main.
+
 ## Current Focus
 Backlinks auto-footer (v1.2) implemented on branch `feat/backlink-footer`
 (2026-07-06). Appends the context backlinks view at the end of every note in
