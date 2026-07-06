@@ -176,6 +176,26 @@ tag-exclude: #draft
 
 This block shows backlinks from notes inside `Projects` or `Areas`, tagged `#active` (or any nested tag such as `#active/now`), excluding any that also carry `#draft`. Each source displays the line of text where the link appears, with the link highlighted.
 
+### Backlinks footer
+
+Rather than adding an `orbital-backlinks` block to each note by hand, enable
+**Settings → Orbital → In-note backlinks → Show backlinks footer** to append the
+backlinks view automatically at the end of **every** note — in both reading view
+and live preview, separated from the note body by a divider (like Obsidian's
+own "Backlinks in document").
+
+- The footer always uses **context** mode and follows the **Context style**
+  (dense/cards) and **Collapse context by default** settings.
+- It shows `Backlinks: 0` and **No backlinks.** on notes with none, so you can
+  always see it is active.
+- Notes matched by the global exclusion settings (**Settings → Orbital →
+  Advanced**) get no footer.
+- It updates live as links across the vault change, and disappears cleanly the
+  moment you turn the setting off.
+
+The footer is **off by default**. It is independent of any `orbital-backlinks`
+code block — if a note has both, both render.
+
 ## Tips and shortcuts
 
 - **Mod-click / middle-click** any relation or recent row to open it in a new tab.
