@@ -12,10 +12,11 @@ It works on desktop and mobile, and reads Obsidian's own link graph — there's 
 
 ## What Orbital does
 
+- **Context** — the first tab: the active note's backlinks with the surrounding text, so you can see at a glance where the note you're reading is referenced. Sort, search, dense/cards styling, and adjustable context amount. See the [Usage guide](docs/usage.md#context-tab).
 - **Relations** — outgoing links, backlinks, deduplicated 2nd-hop "related" notes, unlinked mentions you can convert to links inline, and the note's missing (unresolved) link targets.
 - **Dangling links** — every unresolved `[[link]]` across the vault (or just the current folder), grouped by target or by source, with bulk **rename/merge**, **change to alias**, **create note**, and **delete** — each preview-confirmed and never silent. Apart from **create note**, these only rewrite the link text in your notes (e.g. **delete** turns a dangling `[[link]]` back into plain text) — they never create, move, or remove a target file.
 - **Recent files** — a most-recent-first list of opened notes; drag a row into an editor to insert a `[[wikilink]]`, or click to open.
-- **Status bar** — an item showing backlink / 2nd-hop counts for the active note; click it to jump to the Relations tab.
+- **Status bar** — an item showing backlink / 2nd-hop counts for the active note; click it to open the Orbital pane.
 - **In-note backlinks (`orbital-backlinks`)** — a fenced code block that renders the containing note's backlinks inline, in reading view and live preview. Filter sources by folder or tag, choose between a compact link list and a context view that shows the surrounding text, and let the block update automatically as the vault changes. See the [Usage guide](docs/usage.md#in-note-backlinks-orbital-backlinks) for syntax and all options.
 - **Backlinks footer** — optionally append that same context backlinks view at the end of every note automatically (reading view and live preview), with no code block to add. Off by default; enable it under Settings → Orbital → In-note backlinks. See the [Usage guide](docs/usage.md#backlinks-footer).
 

@@ -97,12 +97,12 @@ describe("OrbitalView TabBar rendering", () => {
 		expect(tablist).not.toBeNull();
 	});
 
-	it("renders exactly three role='tab' buttons", async () => {
+	it("renders exactly four role='tab' buttons", async () => {
 		const view = new OrbitalView(makeLeaf());
 		await view.onOpen();
 
 		const tabs = view.contentEl.querySelectorAll("[role='tab']");
-		expect(tabs.length).toBe(3);
+		expect(tabs.length).toBe(4);
 	});
 
 	it("exactly one tab has aria-selected='true' initially", async () => {
@@ -113,12 +113,12 @@ describe("OrbitalView TabBar rendering", () => {
 		expect(selected.length).toBe(1);
 	});
 
-	it("the 'relations' tab is selected by default", async () => {
+	it("the 'context' tab is selected by default", async () => {
 		const view = new OrbitalView(makeLeaf());
 		await view.onOpen();
 
 		const selected = view.contentEl.querySelector("[role='tab'][aria-selected='true']");
-		expect(selected?.getAttribute("data-tab-id")).toBe("relations");
+		expect(selected?.getAttribute("data-tab-id")).toBe("context");
 	});
 
 	it("non-active tabs have tabindex='-1'", async () => {
@@ -209,7 +209,7 @@ describe("OrbitalView panel switching", () => {
 		await view.onOpen();
 
 		const panel = view.contentEl.querySelector("[role='tabpanel']") as HTMLElement;
-		expect(panel.getAttribute("aria-labelledby")).toContain("relations");
+		expect(panel.getAttribute("aria-labelledby")).toContain("context");
 	});
 });
 
@@ -230,31 +230,32 @@ describe("OrbitalView keyboard navigation", () => {
 		expect(focused?.getAttribute("data-tab-id")).toBe("dangling");
 	});
 
-	it("ArrowLeft wraps from 'relations' to 'recent'", async () => {
+	it("ArrowLeft wraps from the first tab ('context') to 'recent'", async () => {
 		const view = new OrbitalView(makeLeaf());
 		await view.onOpen();
 
-		const relationsTab = view.contentEl.querySelector("[data-tab-id='relations']") as HTMLElement;
-		dispatchKey(relationsTab, "ArrowLeft");
+		const contextTab = view.contentEl.querySelector("[data-tab-id='context']") as HTMLElement;
+		dispatchKey(contextTab, "ArrowLeft");
 		await flush();
 
 		const focused = view.contentEl.querySelector("[role='tab'][tabindex='0']");
 		expect(focused?.getAttribute("data-tab-id")).toBe("recent");
 	});
 
-	it("ArrowRight wraps from 'recent' to 'relations'", async () => {
+	it("ArrowRight wraps from 'recent' to the first tab ('context')", async () => {
 		const view = new OrbitalView(makeLeaf());
 		await view.onOpen();
 
 		// Navigate to recent first
-		const relationsTab = view.contentEl.querySelector("[data-tab-id='relations']") as HTMLElement;
-		dispatchKey(relationsTab, "ArrowRight"); // → dangling
+		const contextTab = view.contentEl.querySelector("[data-tab-id='context']") as HTMLElement;
+		dispatchKey(contextTab, "ArrowRight"); // → relations
+		dispatchKey(view.contentEl.querySelector("[data-tab-id='relations']") as HTMLElement, "ArrowRight"); // → dangling
 		dispatchKey(view.contentEl.querySelector("[data-tab-id='dangling']") as HTMLElement, "ArrowRight"); // → recent
-		dispatchKey(view.contentEl.querySelector("[data-tab-id='recent']") as HTMLElement, "ArrowRight"); // → wraps to relations
+		dispatchKey(view.contentEl.querySelector("[data-tab-id='recent']") as HTMLElement, "ArrowRight"); // → wraps to context
 		await flush();
 
 		const focused = view.contentEl.querySelector("[role='tab'][tabindex='0']");
-		expect(focused?.getAttribute("data-tab-id")).toBe("relations");
+		expect(focused?.getAttribute("data-tab-id")).toBe("context");
 	});
 
 	it("Home moves focus to first tab", async () => {
@@ -266,7 +267,7 @@ describe("OrbitalView keyboard navigation", () => {
 		await flush();
 
 		const focused = view.contentEl.querySelector("[role='tab'][tabindex='0']");
-		expect(focused?.getAttribute("data-tab-id")).toBe("relations");
+		expect(focused?.getAttribute("data-tab-id")).toBe("context");
 	});
 
 	it("End moves focus to last tab", async () => {
@@ -316,7 +317,7 @@ describe("OrbitalView getState/setState", () => {
 		await view.onOpen();
 
 		const state = view.getState() as OrbitalViewState;
-		expect(state.activeTab).toBe("relations");
+		expect(state.activeTab).toBe("context");
 		expect(state.danglingScope).toBe("vault");
 		expect(state.danglingGrouping).toBe("target");
 		// "unlinkedMentions" defaults to collapsed (lazy-scanned on first expand).
@@ -410,7 +411,7 @@ describe("OrbitalView aria-controls linkage", () => {
 		const view = new OrbitalView(makeLeaf());
 		await view.onOpen();
 
-		for (const tabId of ["relations", "dangling", "recent"] as TabId[]) {
+		for (const tabId of ["context", "relations", "dangling", "recent"] as TabId[]) {
 			// Switch to each tab
 			const tabBtn = view.contentEl.querySelector(`[data-tab-id='${tabId}']`) as HTMLElement;
 			tabBtn.click();
@@ -461,12 +462,12 @@ describe("OrbitalView cleanup", () => {
 		const registerDomEventSpy = vi.spyOn(view, "registerDomEvent");
 		await view.onOpen();
 
-		// Three tabs × two event types (click + keydown) = 6 calls minimum
+		// Four tabs × two event types (click + keydown) = 8 calls minimum
 		const types = registerDomEventSpy.mock.calls.map((c) => c[1]);
 		const clickCount = types.filter((t) => t === "click").length;
 		const keydownCount = types.filter((t) => t === "keydown").length;
-		expect(clickCount).toBe(3);
-		expect(keydownCount).toBe(3);
+		expect(clickCount).toBe(4);
+		expect(keydownCount).toBe(4);
 	});
 
 	it("tab-button handlers are not invoked after _runCleanup()", async () => {
@@ -492,8 +493,8 @@ describe("OrbitalView cleanup", () => {
 		// Verify all 6 handlers (3 click + 3 keydown) were captured via registerDomEvent
 		const clickHandlers = captured.filter((c) => c.type === "click");
 		const keydownHandlers = captured.filter((c) => c.type === "keydown");
-		expect(clickHandlers.length).toBe(3);
-		expect(keydownHandlers.length).toBe(3);
+		expect(clickHandlers.length).toBe(4);
+		expect(keydownHandlers.length).toBe(4);
 
 		// Run cleanup — the Component base should invoke registered teardown fns
 		(view as unknown as { _runCleanup(): void })._runCleanup();
@@ -542,7 +543,9 @@ function makeRelationsDeps(opts: RelationsDepsOptions = {}): RelationsDeps & { d
 
 	return {
 		index,
-		getSettings: () => ({ ...DEFAULT_SETTINGS }),
+		// Open on the relations tab so these tests exercise RelationsPanel directly
+		// (the app default is now the context tab).
+		getSettings: () => ({ ...DEFAULT_SETTINGS, defaultTab: "relations" as const }),
 		app: app as unknown as RelationsDeps["app"],
 		isExcluded: () => false,
 		onManage,

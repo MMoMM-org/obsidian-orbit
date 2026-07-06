@@ -24,8 +24,15 @@ describe("OrbitalSettings", () => {
 			expect(DEFAULT_SETTINGS.danglingGrouping).toBe("target");
 		});
 
-		it("has defaultTab of 'relations'", () => {
-			expect(DEFAULT_SETTINGS.defaultTab).toBe("relations");
+		it("has defaultTab of 'context'", () => {
+			expect(DEFAULT_SETTINGS.defaultTab).toBe("context");
+		});
+
+		it("has Context tab defaults (comfortable / cards / recent / expanded)", () => {
+			expect(DEFAULT_SETTINGS.contextTabAmount).toBe("comfortable");
+			expect(DEFAULT_SETTINGS.contextTabStyle).toBe("cards");
+			expect(DEFAULT_SETTINGS.contextTabSort).toBe("recent");
+			expect(DEFAULT_SETTINGS.contextTabCollapse).toBe(false);
 		});
 
 		it("has recentFiles defaulting to empty array", () => {
@@ -65,7 +72,7 @@ describe("OrbitalSettings", () => {
 		it("preserves defaults when stored data is null", () => {
 			const result = mergeSettings(null);
 			expect(result.recentListLength).toBe(20);
-			expect(result.defaultTab).toBe("relations");
+			expect(result.defaultTab).toBe("context");
 		});
 
 		it("overrides with stored values", () => {
@@ -84,7 +91,7 @@ describe("OrbitalSettings", () => {
 			const stored = { recentListLength: 7, unknownKey: "ignored" } as unknown as Partial<OrbitalSettings>;
 			const result = mergeSettings(stored);
 			expect(result.recentListLength).toBe(7);
-			expect(result.defaultTab).toBe("relations");
+			expect(result.defaultTab).toBe("context");
 		});
 
 		it("merges partial recentFiles list", () => {

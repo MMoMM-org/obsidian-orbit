@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { extractContext } from "graph/backlinkContext";
+import { extractContext, windowCharsFor, includesSurroundingLines } from "graph/backlinkContext";
 import type { LinkOffset } from "graph/backlinkContext";
 
 // ---------------------------------------------------------------------------
@@ -210,5 +210,73 @@ describe("extractContext — window truncation", () => {
 		expect(result[0]!.after.endsWith("…")).toBe(true);
 		expect(result[0]!.after).toBe("supercalif…"); // partial word preserved
 		expect(result[0]!.after.length).toBeGreaterThan(1);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Context amount helpers (Context tab)
+// ---------------------------------------------------------------------------
+
+describe("windowCharsFor", () => {
+	it("maps compact and comfortable to bounded windows, full/surrounding to whole-line", () => {
+		expect(windowCharsFor("compact")).toBe(90);
+		expect(windowCharsFor("comfortable")).toBe(180);
+		expect(windowCharsFor("fullLine")).toBe(Number.MAX_SAFE_INTEGER);
+		expect(windowCharsFor("surroundingLines")).toBe(Number.MAX_SAFE_INTEGER);
+	});
+});
+
+describe("includesSurroundingLines", () => {
+	it("is true only for the surroundingLines amount", () => {
+		expect(includesSurroundingLines("surroundingLines")).toBe(true);
+		expect(includesSurroundingLines("compact")).toBe(false);
+		expect(includesSurroundingLines("comfortable")).toBe(false);
+		expect(includesSurroundingLines("fullLine")).toBe(false);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Surrounding lines (leadLine / trailLine)
+// ---------------------------------------------------------------------------
+
+describe("extractContext — surrounding lines", () => {
+	const content = "first line\nmid [[Note]] here\nthird line";
+	//               line 0        line 1 (link)     line 2
+	const links: LinkOffset[] = [{ start: content.indexOf("[[Note]]"), end: content.indexOf("[[Note]]") + 8 }];
+
+	it("omits lead/trail lines by default (backward compatible)", () => {
+		const [snip] = extractContext(content, links, 90);
+		expect(snip!.leadLine).toBeUndefined();
+		expect(snip!.trailLine).toBeUndefined();
+	});
+
+	it("captures the trimmed previous and next lines when requested", () => {
+		const [snip] = extractContext(content, links, Number.MAX_SAFE_INTEGER, { surroundingLines: true });
+		expect(snip!.leadLine).toBe("first line");
+		expect(snip!.trailLine).toBe("third line");
+		expect(snip!.match).toBe("[[Note]]");
+	});
+
+	it("leaves lead undefined on the first line and trail undefined on the last line", () => {
+		const firstLineDoc = "[[Note]] opens\nsecond";
+		const firstLinks: LinkOffset[] = [{ start: 0, end: 8 }];
+		const [firstSnip] = extractContext(firstLineDoc, firstLinks, Number.MAX_SAFE_INTEGER, { surroundingLines: true });
+		expect(firstSnip!.leadLine).toBeUndefined();
+		expect(firstSnip!.trailLine).toBe("second");
+
+		const lastLineDoc = "first\ntail [[Note]]";
+		const start = lastLineDoc.indexOf("[[Note]]");
+		const lastLinks: LinkOffset[] = [{ start, end: start + 8 }];
+		const [lastSnip] = extractContext(lastLineDoc, lastLinks, Number.MAX_SAFE_INTEGER, { surroundingLines: true });
+		expect(lastSnip!.leadLine).toBe("first");
+		expect(lastSnip!.trailLine).toBeUndefined();
+	});
+
+	it("skips blank neighbour lines (whitespace-only → undefined)", () => {
+		const doc = "\nmid [[Note]] x\n   ";
+		const start = doc.indexOf("[[Note]]");
+		const [snip] = extractContext(doc, [{ start, end: start + 8 }], Number.MAX_SAFE_INTEGER, { surroundingLines: true });
+		expect(snip!.leadLine).toBeUndefined();
+		expect(snip!.trailLine).toBeUndefined();
 	});
 });

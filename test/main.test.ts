@@ -333,6 +333,11 @@ describe("T5.1 integration: Relations Manage → switches to Dangling tab filter
 		plugin._index.buildFull();
 
 		await view.onOpen();
+		// The default tab is now "context"; the Manage → flow lives on Relations,
+		// so activate that tab before the tests interact with it.
+		const relationsTab = view.contentEl.querySelector("[data-tab-id='relations']") as HTMLElement;
+		relationsTab.click();
+		await new Promise<void>((r) => setTimeout(r, 0));
 		return { plugin, app, view, leaf };
 	}
 

@@ -10,17 +10,21 @@
  * and state persistence. TabBar owns only the DOM and keyboard logic.
  */
 
+import { setIcon } from "obsidian";
 import type { TabId } from "types/index";
 
 export interface TabDefinition {
 	id: TabId;
 	label: string;
+	/** Lucide / Obsidian icon id shown beside the label (and alone in narrow mode). */
+	icon: string;
 }
 
 export const TAB_DEFINITIONS: TabDefinition[] = [
-	{ id: "relations", label: "Relations" },
-	{ id: "dangling", label: "Dangling links" },
-	{ id: "recent", label: "Recent notes" },
+	{ id: "context", label: "Context", icon: "links-coming-in" },
+	{ id: "relations", label: "Relations", icon: "waypoints" },
+	{ id: "dangling", label: "Dangling links", icon: "unlink" },
+	{ id: "recent", label: "Recent notes", icon: "history" },
 ];
 
 export interface TabBarOptions {
@@ -66,7 +70,7 @@ export class TabBar {
 	) {
 		this.onSelect = options.onSelect;
 		this.idPrefix = options.idPrefix ?? "orbital-tab";
-		this.focusedTabId = options.initialTab ?? "relations";
+		this.focusedTabId = options.initialTab ?? TAB_DEFINITIONS[0]!.id;
 		this.addListener = options.registerDomEvent ?? ((el, type, handler) => {
 			el.addEventListener(type, handler);
 		});
@@ -127,8 +131,15 @@ export class TabBar {
 				"data-tab-id": def.id,
 				id: `${this.idPrefix}-${def.id}`,
 				"aria-controls": `${this.idPrefix}-panel-${def.id}`,
+				// Icon-only (narrow) mode hides the label text, so the accessible
+				// name must live on the button itself.
+				"aria-label": def.label,
 			},
 		});
+		const icon = (btn as unknown as AugmentedEl).createEl("span", {
+			cls: "orbital-tab-icon",
+		});
+		setIcon(icon, def.icon);
 		(btn as unknown as AugmentedEl).createEl("span", {
 			cls: "orbital-tab-label",
 			text: def.label,

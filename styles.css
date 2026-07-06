@@ -78,7 +78,11 @@
 
 .orbital-tab-bar [role="tab"] {
 	flex: 1 1 0;
-	padding: 4px 6px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 5px;
+	padding: 5px 6px;
 	font-size: var(--font-small);
 	color: var(--text-muted);
 	background: transparent;
@@ -91,6 +95,22 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	transition: color 80ms ease, background 80ms ease;
+}
+
+.orbital-tab-icon {
+	display: inline-flex;
+	align-items: center;
+	flex: 0 0 auto;
+}
+
+.orbital-tab-icon svg {
+	width: 15px;
+	height: 15px;
+}
+
+.orbital-tab-label {
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .orbital-tab-bar [role="tab"]:hover {
@@ -955,4 +975,58 @@
 	margin-top: 1.5em;
 	padding-top: 0.75em;
 	border-top: 1px solid var(--background-modifier-border);
+}
+
+/* ── Context tab (backlinks-with-context for the active note) ─────────────────
+   Reuses the .orbital-backlink-context--dense/cards rendering; adds a toolbar
+   (collapse-all · sort · style · search) and, inside the sidebar panel, lets
+   snippets wrap so the wider "context amount" text is fully visible.
+   ─────────────────────────────────────────────────────────────────────────*/
+
+.orbital-context-header {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 6px;
+	padding: 2px 4px 8px;
+}
+
+.orbital-context-title {
+	font-weight: var(--font-semibold);
+	color: var(--text-normal);
+	font-size: var(--font-ui-small);
+}
+
+.orbital-context-count {
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+	font-variant-numeric: tabular-nums;
+}
+
+.orbital-context-tools {
+	margin-left: auto;
+	display: flex;
+	gap: 2px;
+}
+
+.orbital-context-search {
+	flex: 1 0 100%;
+}
+
+.orbital-context-search-input {
+	width: 100%;
+}
+
+/* Inside the sidebar panel, let snippets wrap (the tab shows more context than
+   the code block, which stays single-line). */
+.orbital-panel-container .orbital-backlink-context--dense .orbital-backlink-snippet {
+	white-space: normal;
+	overflow: visible;
+	text-overflow: clip;
+}
+
+/* Dimmed neighbouring lines shown by the "surrounding lines" context amount. */
+.orbital-backlink-context-line {
+	color: var(--text-faint);
+	font-size: var(--font-ui-smaller);
 }

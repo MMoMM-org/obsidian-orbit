@@ -36,6 +36,9 @@ import { DanglingPanel } from "view/panels/DanglingPanel";
 import type { DanglingPanelDeps } from "view/panels/DanglingPanel";
 import { RecentPanel } from "view/panels/RecentPanel";
 import type { RecentPanelDeps } from "view/panels/RecentPanel";
+import { ContextPanel } from "view/panels/ContextPanel";
+import type { ContextPanelDeps } from "view/panels/ContextPanel";
+import type { ContextStyle, ContextSort } from "types/index";
 
 export const VIEW_TYPE = "orbital";
 
@@ -82,7 +85,32 @@ export type DanglingDeps = Omit<
  */
 export type RecentDeps = Omit<RecentPanelDeps, "registerDomEvent">;
 
+/**
+ * Dependencies the plugin supplies for building the Context panel.
+ * OrbitalView fills the toolbar state (style/sort/search/collapsed-all),
+ * requestRefresh, and registerDomEvent.
+ */
+export type ContextDeps = Omit<
+	ContextPanelDeps,
+	| "getStyle"
+	| "setStyle"
+	| "getSort"
+	| "setSort"
+	| "getSearchQuery"
+	| "setSearchQuery"
+	| "getCollapsedAll"
+	| "setCollapsedAll"
+	| "requestRefresh"
+	| "registerDomEvent"
+>;
+
+/** Below this content width the tab bar collapses labels to icons only. */
+const NARROW_WIDTH_PX = 320;
+
 const DEFAULT_PANEL_RENDERERS: Record<TabId, PanelRenderer> = {
+	context: (el) => {
+		el.createDiv({ cls: "orbital-panel-placeholder", text: "Context" });
+	},
 	relations: (el) => {
 		el.createDiv({ cls: "orbital-panel-placeholder", text: "Relations" });
 	},
@@ -96,7 +124,7 @@ const DEFAULT_PANEL_RENDERERS: Record<TabId, PanelRenderer> = {
 
 export class OrbitalView extends ItemView {
 	private state: OrbitalViewState = {
-		activeTab: "relations",
+		activeTab: "context",
 		danglingScope: "vault",
 		danglingGrouping: "target",
 		// "unlinkedMentions" starts collapsed: its content is scanned lazily on
@@ -109,6 +137,13 @@ export class OrbitalView extends ItemView {
 	private tabBar: TabBar | null = null;
 	private panelContainer: HTMLElement | null = null;
 	private readonly panelRenderers: Record<TabId, PanelRenderer>;
+
+	// Context tab toolbar state (view-owned, ephemeral). null = fall back to the
+	// configured default from settings.
+	private _contextStyle: ContextStyle | null = null;
+	private _contextSort: ContextSort | null = null;
+	private _contextSearch = "";
+	private _contextCollapsedAll: boolean | null = null;
 
 	constructor(
 		leaf: WorkspaceLeaf,
@@ -136,6 +171,12 @@ export class OrbitalView extends ItemView {
 		 * When absent, the default placeholder is used.
 		 */
 		recentDeps?: RecentDeps,
+		/**
+		 * When supplied, OrbitalView constructs the real ContextPanel backed by
+		 * the plugin's index + settings. When absent, the default placeholder
+		 * is used.
+		 */
+		contextDeps?: ContextDeps,
 	) {
 		super(leaf);
 
@@ -162,7 +203,19 @@ export class OrbitalView extends ItemView {
 			merged.recent = this._buildRecentRenderer(recentDeps);
 		}
 
+		if (contextDeps !== undefined) {
+			merged.context = this._buildContextRenderer(contextDeps);
+		}
+
 		this.panelRenderers = merged;
+
+		// Open on the user's configured default tab (falls back to the initial
+		// "context"). A later setState() from a restored leaf overrides this.
+		const settings = relationsDeps?.getSettings() ?? danglingDeps?.getSettings();
+		const configuredTab = settings?.defaultTab;
+		if (configuredTab && VALID_TABS.has(configuredTab)) {
+			this.state = { ...this.state, activeTab: configuredTab };
+		}
 	}
 
 	// -------------------------------------------------------------------------
@@ -203,6 +256,7 @@ export class OrbitalView extends ItemView {
 
 		this.panelContainer = this.contentEl.createDiv({ cls: "orbital-panel-container" });
 		this.renderPanel(this.state.activeTab);
+		this._updateNarrow();
 
 		// Register a cleanup function so _runCleanup() can be asserted in tests.
 		this.register(() => {
@@ -215,6 +269,18 @@ export class OrbitalView extends ItemView {
 		this.contentEl.empty();
 		this.tabBar = null;
 		this.panelContainer = null;
+	}
+
+	/** Obsidian calls this on pane resize — collapse tab labels to icons when narrow. */
+	onResize(): void {
+		this._updateNarrow();
+	}
+
+	/** Toggle the tab bar's icon-only mode based on the current content width. */
+	private _updateNarrow(): void {
+		if (!this.tabBar) return;
+		const width = this.contentEl.clientWidth;
+		this.tabBar.setNarrow(width > 0 && width < NARROW_WIDTH_PX);
 	}
 
 	// -------------------------------------------------------------------------
@@ -378,6 +444,37 @@ export class OrbitalView extends ItemView {
 	}
 
 	// -------------------------------------------------------------------------
+	// Private — context panel factory
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Build the PanelRenderer closure for the 'context' tab. The toolbar state
+	 * (style/sort/search/collapsed-all) lives on OrbitalView and seeds its
+	 * defaults from settings; changing it re-renders the context panel.
+	 */
+	private _buildContextRenderer(deps: ContextDeps): PanelRenderer {
+		return (container: HTMLElement, activePath: string | null): void => {
+			const panel = new ContextPanel({
+				...deps,
+				getStyle: () => this._contextStyle ?? deps.getSettings().contextTabStyle,
+				setStyle: (s) => { this._contextStyle = s; },
+				getSort: () => this._contextSort ?? deps.getSettings().contextTabSort,
+				setSort: (s) => { this._contextSort = s; },
+				getSearchQuery: () => this._contextSearch,
+				setSearchQuery: (q) => { this._contextSearch = q; },
+				getCollapsedAll: () =>
+					this._contextCollapsedAll ?? deps.getSettings().contextTabCollapse,
+				setCollapsedAll: (c) => { this._contextCollapsedAll = c; },
+				requestRefresh: () => this.renderPanel("context"),
+				registerDomEvent: (el, type, handler) => {
+					this.registerDomEvent(el, type, handler);
+				},
+			});
+			panel.render(container, activePath);
+		};
+	}
+
+	// -------------------------------------------------------------------------
 	// Private — panel rendering
 	// -------------------------------------------------------------------------
 
@@ -392,11 +489,13 @@ export class OrbitalView extends ItemView {
 		// repaints driven by vault/metadata events must never pull focus out of the
 		// editor and into the search box, which is what an unconditional focus()
 		// in the panel's render would do once a query had been entered.
+		const SEARCH_INPUT_SELECTOR =
+			".orbital-dangling-search-input, .orbital-context-search-input";
 		const active = this.panelContainer.ownerDocument?.activeElement;
 		const restoreSearchFocus =
 			active instanceof HTMLElement &&
 			this.panelContainer.contains(active) &&
-			active.classList.contains("orbital-dangling-search-input");
+			active.matches(SEARCH_INPUT_SELECTOR);
 		const caret = restoreSearchFocus ? (active as HTMLInputElement).selectionStart : null;
 
 		// Remove existing panel(s)
@@ -418,7 +517,7 @@ export class OrbitalView extends ItemView {
 
 		// Restore search-box focus when it owned focus before the rebuild.
 		if (restoreSearchFocus) {
-			const input = panelEl.querySelector<HTMLInputElement>(".orbital-dangling-search-input");
+			const input = panelEl.querySelector<HTMLInputElement>(SEARCH_INPUT_SELECTOR);
 			if (input) {
 				input.focus();
 				const end = input.value.length;

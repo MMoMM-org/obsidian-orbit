@@ -1,8 +1,12 @@
 export type DanglingGrouping = "target" | "source";
 export type DanglingScope = "vault" | "folder";
-export type TabId = "relations" | "dangling" | "recent";
+export type TabId = "context" | "relations" | "dangling" | "recent";
 /** Visual style for the in-note backlinks code block in context mode. */
 export type ContextStyle = "dense" | "cards";
+/** How much surrounding text the Context tab shows for each backlink. */
+export type ContextAmount = "compact" | "comfortable" | "fullLine" | "surroundingLines";
+/** Sort order for the Context tab's source groups. */
+export type ContextSort = "recent" | "mentions" | "name";
 
 export interface OrbitalSettings {
 	/** Number of recently visited notes to show. */
@@ -35,6 +39,14 @@ export interface OrbitalSettings {
 	backlinkContextCollapse: boolean;
 	/** When true, every note gets a backlinks context view auto-appended at its end (reading + live preview). */
 	backlinkFooterEnabled: boolean;
+	/** Context tab: how much surrounding text each backlink snippet shows. */
+	contextTabAmount: ContextAmount;
+	/** Context tab: default visual style (independent of the code block / footer). */
+	contextTabStyle: ContextStyle;
+	/** Context tab: default sort order for source groups. */
+	contextTabSort: ContextSort;
+	/** Context tab: when true, source groups start folded. */
+	contextTabCollapse: boolean;
 	/** When true, the Relations tab shows an "Unlinked mentions" section. */
 	unlinkedMentionsEnabled: boolean;
 	/** When true, clicking an unlinked mention opens the note in a new tab. */
@@ -55,12 +67,16 @@ export const DEFAULT_SETTINGS: OrbitalSettings = {
 	danglingDefaultScope: "vault",
 	danglingGrouping: "target",
 	newNoteFolder: "",
-	defaultTab: "relations",
+	defaultTab: "context",
 	showCounts: true,
 	showStatusBar: true,
 	backlinkContextStyle: "dense",
 	backlinkContextCollapse: false,
 	backlinkFooterEnabled: false,
+	contextTabAmount: "comfortable",
+	contextTabStyle: "cards",
+	contextTabSort: "recent",
+	contextTabCollapse: false,
 	unlinkedMentionsEnabled: true,
 	unlinkedOpenInNewTab: false,
 	debugLogging: false,

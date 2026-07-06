@@ -71,6 +71,12 @@ async function buildWiredView(
 	plugin._index.buildFull();
 	await view.onOpen();
 
+	// The default tab is now "context"; these ACs exercise Relations/Dangling/
+	// Recent, so activate Relations after opening (AC1 tests click tabs explicitly).
+	const relationsTab = view.contentEl.querySelector("[data-tab-id='relations']") as HTMLElement;
+	relationsTab?.click();
+	await new Promise<void>((r) => setTimeout(r, 0));
+
 	return { plugin, app, view, leaf };
 }
 
@@ -109,9 +115,10 @@ describe("AC1 — Single tabbed sidebar pane", () => {
 		expect(tablist).not.toBeNull();
 
 		const tabs = view.contentEl.querySelectorAll("[role='tab']");
-		expect(tabs).toHaveLength(3);
+		expect(tabs).toHaveLength(4);
 
 		const tabIds = Array.from(tabs).map((t) => t.getAttribute("data-tab-id"));
+		expect(tabIds).toContain("context");
 		expect(tabIds).toContain("relations");
 		expect(tabIds).toContain("dangling");
 		expect(tabIds).toContain("recent");
