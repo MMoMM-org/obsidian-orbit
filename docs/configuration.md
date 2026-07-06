@@ -22,5 +22,8 @@ and should be confirmed against the source code.
 | `showStatusBar` | `boolean` | `true` | When true, a status-bar item shows backlink/2nd-hop counts for the active note. |
 | `unlinkedMentionsEnabled` | `boolean` | `true` | When true, the Relations tab shows an "Unlinked mentions" section. |
 | `unlinkedOpenInNewTab` | `boolean` | `false` | When true, clicking an unlinked mention opens the note in a new tab. |
+| `backlinkContextStyle` | `ContextStyle` | `"dense"` | Default visual style for the in-note backlinks code block in context mode (`"dense"` or `"cards"`). |
+| `backlinkContextCollapse` | `boolean` | `false` | When true, in-note backlink context groups start folded. |
+| `backlinkFooterEnabled` | `boolean` | `false` | When true, every note gets a backlinks context view auto-appended at its end (reading view and live preview). |
 | `debugLogging` | `boolean` | `false` | When true, Orbital emits verbose [Orbital] console.debug traces for diagnostics. |
 | `recentFiles` | `{ path: string; basename: string }[]` | `[]` | Internal persisted state: the most-recently-visited notes list. Not user-configurable. |

@@ -72,6 +72,46 @@ the panel re-renders on *passive* events too (metadata `changed`, `file-open`,
 active-leaf-change) — each of those rebuilt the search box and re-grabbed focus,
 even though the user was typing in the editor.
 
+## A note-end "footer" in live preview sits a huge gap below the text
+
+**Symptom (2026-07-06):** The backlinks auto-footer, injected as a child of
+`.cm-sizer` after `.cm-content`, appeared ~half a screen below the last line in
+live preview; reading view showed nothing at all.
+
+**Root cause:** Obsidian gives `.cm-content` a dynamic `padding-bottom` of about
+half the viewport (scroll-past-end, so the last line can scroll to centre) —
+measured live at `361px`. Anything appended to `.cm-sizer` lands *below* that
+padding, so it can never hug the text. Reading view separately rebuilds/pads the
+preview, wiping naive sizer injection. **Manual DOM injection into the editor
+sizers is the wrong mechanism for note-end content.**
+
+**Fix:** render the footer the two mode-native ways instead (see
+`src/footer/BacklinkFooterManager.ts`): reading view via
+`registerMarkdownPostProcessor` (append after the note's last block, found with
+`ctx.getSectionInfo`); live preview/source via `registerEditorExtension` with a
+CodeMirror **block widget at `state.doc.length`** — inside the content flow,
+above the scroll-past padding, so it hugs the last line. Use `editorInfoField`
+for the file behind an editor.
+
+## CodeMirror: "Block decorations may not be specified via plugins"
+
+**Symptom (2026-07-06):** `RangeError: Block decorations may not be specified via
+plugins` thrown from CM on scroll, once the footer block widget was added.
+
+**Root cause:** CodeMirror computes block-decoration heights *before* view
+plugins run, so **block decorations (`Decoration.widget({ block: true })`) must
+be provided by a `StateField`, never a `ViewPlugin`**. The first cut supplied
+them via `ViewPlugin.fromClass(..., { decorations })`, which is only valid for
+inline decorations.
+
+**Fix:** define the decoration set in a `StateField<DecorationSet>` with
+`provide: (f) => EditorView.decorations.from(f)`; rebuild in `update()` on
+`tr.docChanged`, a file change (`editorInfoField`), or a custom refresh
+`StateEffect`. See `createFooterEditorExtension` in
+`src/footer/BacklinkFooterManager.ts`.
+
+## Dangling search box steals focus from the editor while typing
+
 **Fix:** focus restoration moved up to `OrbitalView.renderPanel`, which owns the
 teardown (`panelContainer.empty()`). It captures whether `document.activeElement`
 was the search input **before** the rebuild and only re-focuses (and restores the

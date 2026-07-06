@@ -164,6 +164,19 @@ export class SettingsTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					}),
 			);
+
+		new Setting(containerEl)
+			.setName("Show backlinks footer")
+			.setDesc("Append a backlinks context view at the end of every note, in reading view and live preview. Uses the context style and collapse settings above.")
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.backlinkFooterEnabled)
+					.onChange(async (value) => {
+						this.plugin.settings.backlinkFooterEnabled = value;
+						await this.plugin.saveSettings();
+						this.plugin._refreshFooterHosts();
+					}),
+			);
 	}
 
 	private renderDanglingSection(containerEl: HTMLElement): void {

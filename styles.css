@@ -851,9 +851,11 @@
 	color: var(--text-accent);
 }
 
-/* Per-source occurrence count, right-aligned (native Linked-mentions parity). */
+/* Per-source occurrence count, right-aligned (native Linked-mentions parity).
+   A small right margin keeps it off the frame edge (nudged left). */
 .orbital-backlink-group-count {
 	margin-left: auto;
+	margin-right: 6px;
 	padding-left: 8px;
 	color: var(--text-muted);
 	font-size: var(--font-ui-smaller);
@@ -940,4 +942,17 @@
 
 .orbital-backlink-context--cards .orbital-backlink-snippet:hover {
 	border-color: var(--text-accent);
+}
+
+/* ── Backlinks footer (v1.2 auto-footer) ─────────────────────────────────────
+   Rendered at the end of a note by a markdown post-processor (reading view) and
+   a CodeMirror block widget (live preview). It hugs the note's last line, with a
+   top divider separating it from the body — matching Obsidian's native
+   "Backlinks in document" footer.
+   ─────────────────────────────────────────────────────────────────────────*/
+
+.orbital-backlink-footer {
+	margin-top: 1.5em;
+	padding-top: 0.75em;
+	border-top: 1px solid var(--background-modifier-border);
 }

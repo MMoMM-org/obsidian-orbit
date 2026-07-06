@@ -33,6 +33,8 @@ export interface OrbitalSettings {
 	backlinkContextStyle: ContextStyle;
 	/** When true, in-note backlink context groups start folded (block `collapse:` overrides). */
 	backlinkContextCollapse: boolean;
+	/** When true, every note gets a backlinks context view auto-appended at its end (reading + live preview). */
+	backlinkFooterEnabled: boolean;
 	/** When true, the Relations tab shows an "Unlinked mentions" section. */
 	unlinkedMentionsEnabled: boolean;
 	/** When true, clicking an unlinked mention opens the note in a new tab. */
@@ -58,6 +60,7 @@ export const DEFAULT_SETTINGS: OrbitalSettings = {
 	showStatusBar: true,
 	backlinkContextStyle: "dense",
 	backlinkContextCollapse: false,
+	backlinkFooterEnabled: false,
 	unlinkedMentionsEnabled: true,
 	unlinkedOpenInNewTab: false,
 	debugLogging: false,

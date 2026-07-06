@@ -54,3 +54,6 @@ _archive/
 /claude-docker-home/
 /begin-code.sh
 /generated-images/
+
+# TCS session checkpoint (local continuity, never committed)
+.claude/.session-checkpoint.md

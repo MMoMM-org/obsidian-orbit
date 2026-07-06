@@ -8,6 +8,7 @@ import type { RelationsDeps, DanglingDeps, RecentDeps } from "view/OrbitalView";
 import { LinkGraphIndex } from "graph/LinkGraphIndex";
 import { BacklinkCodeBlock } from "codeblock/BacklinkCodeBlock";
 import type { BacklinkDeps } from "codeblock/BacklinkCodeBlock";
+import { BacklinkFooterManager } from "footer/BacklinkFooterManager";
 import { ExclusionMatcher } from "shared/ExclusionMatcher";
 import { LinkRewriteService } from "links/LinkRewriteService";
 import { MentionLinkService } from "links/MentionLinkService";
@@ -54,6 +55,12 @@ export default class OrbitalPlugin extends Plugin {
 
 	/** Debounced handler for active-leaf-change events (trailing). */
 	_refreshDebouncer: Debouncer<[], void> | null = null;
+
+	/** Auto-footer manager — renders backlink footers in reading view + live preview. */
+	_footerManager: BacklinkFooterManager | null = null;
+
+	/** Debounced footer content refresh for edits/structural changes. */
+	_footerRefreshDebouncer: Debouncer<[], void> | null = null;
 
 	/** True once the index has been built (at layout-ready). */
 	private _indexBuilt = false;
@@ -107,6 +114,11 @@ export default class OrbitalPlugin extends Plugin {
 				new BacklinkCodeBlock(el, source, ctx.sourcePath, this._buildBacklinkDeps()),
 			);
 		});
+
+		this._footerManager = new BacklinkFooterManager(this._buildBacklinkDeps());
+		this.registerMarkdownPostProcessor(this._footerManager.readingPostProcessor);
+		this.registerEditorExtension(this._footerManager.editorExtension());
+		this.register(() => this._footerManager?.destroy());
 
 		this._wireEvents();
 		this._buildStatusBar();
@@ -289,6 +301,34 @@ export default class OrbitalPlugin extends Plugin {
 		this._wireDebouncedLeafChange();
 		this._wireVaultEvents();
 		this._wireMetadataCacheEvents();
+		this._wireFooterEvents();
+	}
+
+	/**
+	 * Footer wiring. Footer creation/placement is owned by the reading-view
+	 * post-processor and the live-preview CodeMirror widget (registered in
+	 * onload); here we only refresh footer CONTENTS when backlinks change
+	 * (debounced, driven by the metadata/vault handlers) and once after the
+	 * index is built at layout-ready (footers that painted against an empty
+	 * index would otherwise read "Backlinks: 0").
+	 */
+	private _wireFooterEvents(): void {
+		const debounced = debounce(
+			(): void => {
+				this._footerManager?.refreshAll();
+			},
+			this.settings.refreshDebounceMs,
+			true,
+		);
+		this._footerRefreshDebouncer = debounced;
+		this.register(() => this._footerRefreshDebouncer?.cancel());
+
+		this.app.workspace.onLayoutReady(() => this._footerManager?.refreshAll());
+	}
+
+	/** Rebuild footers across open notes after the setting toggles (settings tab). */
+	_refreshFooterHosts(): void {
+		this._footerManager?.refreshHosts();
 	}
 
 	private _wireDebouncedLeafChange(): void {
@@ -331,6 +371,7 @@ export default class OrbitalPlugin extends Plugin {
 				this._mentionService.invalidate();
 				if (this._indexBuilt) this._structuralChange = true;
 				this._repaintActivePanel();
+				this._footerRefreshDebouncer?.();
 			}),
 		);
 
@@ -341,6 +382,7 @@ export default class OrbitalPlugin extends Plugin {
 				this._mentionService.invalidate();
 				if (this._indexBuilt) this._structuralChange = true;
 				this._repaintActivePanel();
+				this._footerRefreshDebouncer?.();
 			}),
 		);
 
@@ -362,6 +404,7 @@ export default class OrbitalPlugin extends Plugin {
 				this._index.updateFile(file.path);
 				this._mentionService.invalidate();
 				this._repaintActivePanel();
+				this._footerRefreshDebouncer?.();
 			}),
 		);
 
@@ -392,6 +435,7 @@ export default class OrbitalPlugin extends Plugin {
 				this._index.buildFull();
 				this._mentionService.invalidate();
 				this._repaintActivePanel();
+				this._footerManager?.refreshAll();
 				this._log.debug("index rebuilt after structural change");
 			}, this.settings.refreshDebounceMs, true);
 			this.register(() => rebuildOnResolved.cancel());
