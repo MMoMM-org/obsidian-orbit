@@ -17,7 +17,7 @@ and should be confirmed against the source code.
 | `danglingDefaultScope` | `DanglingScope` | `"vault"` | Whether to show dangling links for the whole vault or just the current folder. |
 | `danglingGrouping` | `DanglingGrouping` | `"target"` | Group dangling links by their target (missing note) or by their source file. |
 | `newNoteFolder` | `string` | `""` | Folder for new notes created from dangling links. Leave empty to use the default location. |
-| `defaultTab` | `TabId` | `"relations"` | Which tab to show when the orbit pane opens. |
+| `defaultTab` | `TabId` | `"context"` | Which tab to show when the orbit pane opens (`"context"`, `"relations"`, `"dangling"`, or `"recent"`). |
 | `showCounts` | `boolean` | `true` | Display item counts on each tab label. |
 | `showStatusBar` | `boolean` | `true` | When true, a status-bar item shows backlink/2nd-hop counts for the active note. |
 | `unlinkedMentionsEnabled` | `boolean` | `true` | When true, the Relations tab shows an "Unlinked mentions" section. |
@@ -25,5 +25,9 @@ and should be confirmed against the source code.
 | `backlinkContextStyle` | `ContextStyle` | `"dense"` | Default visual style for the in-note backlinks code block in context mode (`"dense"` or `"cards"`). |
 | `backlinkContextCollapse` | `boolean` | `false` | When true, in-note backlink context groups start folded. |
 | `backlinkFooterEnabled` | `boolean` | `false` | When true, every note gets a backlinks context view auto-appended at its end (reading view and live preview). |
+| `contextTabAmount` | `ContextAmount` | `"comfortable"` | Context tab: how much surrounding text each backlink shows (`"compact"`, `"comfortable"`, `"fullLine"`, `"surroundingLines"`). |
+| `contextTabStyle` | `ContextStyle` | `"cards"` | Context tab: default visual style (`"dense"` or `"cards"`), independent of the code block / footer. |
+| `contextTabSort` | `ContextSort` | `"recent"` | Context tab: default sort for source notes (`"recent"`, `"mentions"`, or `"name"`). |
+| `contextTabCollapse` | `boolean` | `false` | Context tab: when true, source groups start folded. |
 | `debugLogging` | `boolean` | `false` | When true, Orbital emits verbose [Orbital] console.debug traces for diagnostics. |
 | `recentFiles` | `{ path: string; basename: string }[]` | `[]` | Internal persisted state: the most-recently-visited notes list. Not user-configurable. |

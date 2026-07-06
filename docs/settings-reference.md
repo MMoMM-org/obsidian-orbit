@@ -13,8 +13,8 @@ These settings appear at the top of the settings tab, above the first heading.
 
 ### Default tab
 
-- **Type:** dropdown — Relations / Dangling links / Recent notes
-- **Default:** Relations
+- **Type:** dropdown — Context / Relations / Dangling links / Recent notes
+- **Default:** Context
 - **Effect:** which tab is shown when the Orbital pane opens.
 - **When to change:** pick the tab you open most often so it's there immediately.
 
@@ -30,8 +30,47 @@ These settings appear at the top of the settings tab, above the first heading.
 - **Type:** toggle
 - **Default:** on
 - **Effect:** shows the Orbital status-bar item with backlink / 2nd-hop counts for the
-  active note; clicking it opens the Relations tab.
+  active note; clicking it opens the Orbital pane.
 - **When to change:** turn off to reclaim status-bar space.
+
+## Context tab
+
+![The Context tab settings group](../assets/settings-context-tab.png)
+
+These settings control the **Context tab** — the first tab, which shows the active
+note's backlinks with surrounding context. See the
+[Usage guide](usage.md#context-tab) for the tab itself.
+
+### Context amount
+
+- **Type:** dropdown — Compact / Comfortable / Full line / Surrounding lines
+- **Default:** Comfortable
+- **Effect:** how much surrounding text each backlink snippet shows. **Compact** is a
+  tight window (like the code block); **Comfortable** shows the whole sentence; **Full
+  line** shows the entire line; **Surrounding lines** adds the dimmed lines before and
+  after.
+- **When to change:** more context is easier to read in place; less is more scannable.
+
+### Style
+
+- **Type:** dropdown — Dense / Cards
+- **Default:** Cards
+- **Effect:** the tab's visual style, independent of the code block / footer's own
+  style. Also toggleable from the tab's toolbar.
+
+### Sort
+
+- **Type:** dropdown — Recently modified / Mention count / Name
+- **Default:** Recently modified
+- **Effect:** the order source notes appear in. The tab's sort button cycles through
+  these.
+
+### Collapse groups by default
+
+- **Type:** toggle
+- **Default:** off
+- **Effect:** when on, each source group in the Context tab starts folded. The
+  collapse-all toolbar button toggles them.
 
 ## Relations
 

@@ -4,20 +4,20 @@ Documentation for **Orbital** — *see what orbits your notes.*
 
 ## Overview
 
-Orbital is an Obsidian plugin that consolidates three sidebar workflows into a single
-pane: explore a note's relations (outgoing links, backlinks, 2nd-hop related notes,
-and missing links), fix dangling links in bulk (rename, merge, change to alias,
-create, or delete), and browse recent notes with drag-to-link support. It's for
-Obsidian users who maintain interlinked vaults and want connections, broken links,
-and recent activity in one place instead of three plugins. Orbital runs on desktop and
-mobile.
+Orbital is an Obsidian plugin that consolidates four sidebar workflows into a single
+pane: see where a note is referenced in context, explore a note's relations (outgoing
+links, backlinks, 2nd-hop related notes, and missing links), fix dangling links in bulk
+(rename, merge, change to alias, create, or delete), and browse recent notes with
+drag-to-link support. It's for Obsidian users who maintain interlinked vaults and want
+connections, broken links, and recent activity in one place instead of several plugins.
+Orbital runs on desktop and mobile.
 
 ## Documentation map
 
 - [Installation](installation.md) — install via Community Plugins, manually, or BRAT;
   verify and update.
-- [Usage](usage.md) — open the pane and work the Relations, Dangling links, and
-  Recent notes tabs.
+- [Usage](usage.md) — open the pane and work the Context, Relations, Dangling links,
+  and Recent notes tabs.
 - [Configuration](configuration.md) — at-a-glance table of every setting.
 - [Settings reference](settings-reference.md) — each setting in depth: effect and when
   to change it.

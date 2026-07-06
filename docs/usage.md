@@ -1,21 +1,49 @@
 # Usage
 
-Orbital puts three sidebar workflows — relations, dangling links, and recent notes —
-into a single pane. This page walks through opening the pane and the everyday tasks
-you'll repeat.
+Orbital puts four sidebar workflows — context, relations, dangling links, and recent
+notes — into a single pane. This page walks through opening the pane and the everyday
+tasks you'll repeat.
 
 ## First use
 
 Open the pane with the **Orbital: Open** command from the command palette
-(`Cmd/Ctrl-P`). It docks in the right sidebar as one pane with three tabs:
-**Relations**, **Dangling links**, and **Recent notes**.
+(`Cmd/Ctrl-P`). It docks in the right sidebar as one pane with four tabs:
+**Context**, **Relations**, **Dangling links**, and **Recent notes**. Each tab has an
+icon; when the pane is narrow the labels collapse to icons only.
 
 ![The Relations tab for the active note](../assets/orbital-relations-statusbar.png)
 
-The Relations tab always reflects the **active note** and updates as you switch
-notes (debounced, so rapid switching doesn't flicker).
+Every tab reflects the **active note** and updates as you switch notes (debounced, so
+rapid switching doesn't flicker).
 
 ## Common workflows
+
+### Context tab
+
+The **Context tab** is the first tab and opens by default. It shows the active note's
+**backlinks with the surrounding text**, so you can see at a glance where the note
+you're reading shows up — like Obsidian's "Linked mentions", kept inside Orbital.
+
+![The Context tab for the active note](../assets/tab-content.png)
+
+Each source note is a group showing its name, how many times it links here, and a
+snippet of the line(s) where the link appears (with the link highlighted). Click a
+snippet to open that note at that line; Mod-click opens it in a new tab.
+
+A toolbar across the top mirrors Obsidian's Linked-mentions:
+
+- **Collapse all** — fold / unfold every source group.
+- **Sort** — cycles **recently modified → mention count → name**.
+- **Style** — toggles **dense** (compact) and **cards** (bordered) layout.
+- **Search** — filter the sources by note name.
+
+How much text each snippet shows is the **Context amount** setting (Compact /
+Comfortable / Full line / Surrounding lines) — see
+[Settings → Context tab](settings-reference.md#context-tab). The style, sort, and
+collapse defaults live there too; the toolbar overrides them for the session.
+
+The Context tab is the read-only reference for "where does this note appear"; the
+other tabs are for working through and fixing your links.
 
 ### Explore a note's relations
 
@@ -201,7 +229,7 @@ code block — if a note has both, both render.
 - **Mod-click / middle-click** any relation or recent row to open it in a new tab.
 - **Hover** a row with the core *Page preview* plugin enabled to get a preview popover.
 - **Status bar:** the Orbital item shows backlink / 2nd-hop counts for the active note —
-  click it to jump straight to the Relations tab. Toggle it in settings.
+  click it to open the Orbital pane. Toggle it in settings.
 - **Manage →** in the Missing section deep-links to the Dangling links tab filtered to
   that target; **Show all** restores the full list.
 - Choose the default tab, count badges, exclusions, and more under **Settings → Orbital**.

@@ -70,5 +70,5 @@ After enabling Orbital, confirm it loaded:
 ## Next steps
 
 - See [Configuration](configuration.md) for every setting Orbital exposes.
-- See [Usage](usage.md) for a walkthrough of the Relations, Dangling links, and
-  Recent files tabs.
+- See [Usage](usage.md) for a walkthrough of the Context, Relations, Dangling links,
+  and Recent files tabs.
