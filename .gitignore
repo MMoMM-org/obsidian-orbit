@@ -23,6 +23,8 @@ test/*/.obsidian/plugins/*/assets/
 
 # Per-developer Obsidian workspace state inside test vaults
 test/*/.obsidian/workspace*
+# Core-plugin runtime state (e.g. Backlinks) — generated, not a source config
+test/*/.obsidian/backlink.json
 
 # Test coverage
 coverage/
