@@ -1,3 +1,15 @@
+## [1.3.0](https://github.com/MMoMM-org/obsidian-orbital/compare/1.2.0...1.3.0) (2026-07-06)
+
+### Features
+
+* **context-tab:** add the Context tab settings group ([6fb838c](https://github.com/MMoMM-org/obsidian-orbital/commit/6fb838c3738873f6567b544115f80f2d9d08e033))
+* **context-tab:** ContextPanel with toolbar, sort, search, context amount ([f8e91d0](https://github.com/MMoMM-org/obsidian-orbital/commit/f8e91d08145fda205563e0f77c97fe7c6d415581))
+* **context-tab:** tab plumbing, settings, and context-amount extraction ([554c719](https://github.com/MMoMM-org/obsidian-orbital/commit/554c71988b30283912f3927a69294a2520efe7d2))
+
+### Bug Fixes
+
+* **context-tab:** name-sort icon, live settings refresh, status-bar target ([98b2bdf](https://github.com/MMoMM-org/obsidian-orbital/commit/98b2bdf2c6686d700c006c1d6af6cf1b7f06a64f))
+
 ## [1.2.0](https://github.com/MMoMM-org/obsidian-orbital/compare/1.1.0...1.2.0) (2026-07-06)
 
 ### Features
