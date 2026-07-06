@@ -68,6 +68,43 @@ These settings appear at the top of the settings tab, above the first heading.
   always opens a new tab regardless of this setting.)
 - **When to change:** turn on if you prefer mentions to open alongside the current note.
 
+## In-note backlinks
+
+![The In-note backlinks settings group](../assets/settings-innote-backlinks.png)
+
+The first two settings set the **context-mode defaults** for the `orbital-backlinks`
+code block (a block's own `style:` / `collapse:` keys override them); all other
+block options — display mode, folder and tag filters — live in the block's markdown
+source. The third turns on the automatic footer. See the
+[Usage guide](usage.md#in-note-backlinks-orbital-backlinks) for the full syntax.
+
+### Context style
+
+- **Type:** dropdown — Dense / Cards
+- **Default:** Dense
+- **Effect:** default visual style for context mode — **Dense** (compact list with a
+  vertical rule) or **Cards** (one bordered card per source).
+- **Override per block:** `style: dense|cards`.
+
+### Collapse context by default
+
+- **Type:** toggle
+- **Default:** off (expanded)
+- **Effect:** when on, context-mode source groups start folded; click a chevron or
+  title to unfold. Fold state is per block and not persisted.
+- **Override per block:** `collapse: true|false`.
+
+### Show backlinks footer
+
+- **Type:** toggle
+- **Default:** off
+- **Effect:** appends the context backlinks view at the end of **every** note, in
+  reading view and live preview, separated from the body by a divider. It uses the
+  Context style and Collapse settings above, shows `Backlinks: 0` / **No backlinks.**
+  on notes with none, and skips notes matched by the Advanced exclusion patterns.
+- **When to change:** turn on to see a note's backlinks without adding a code block to
+  each note. See [Backlinks footer](usage.md#backlinks-footer).
+
 ## Dangling links
 
 ![Dangling links and Recent files settings](../assets/orbital-settings-dangling-recent.png)
@@ -145,27 +182,6 @@ These settings appear at the top of the settings tab, above the first heading.
 - **Effect:** emits verbose `[Orbital]` traces to the developer console for diagnostics.
 - **When to change:** turn on when reproducing a bug to capture detail for a report
   (see [Troubleshooting](troubleshooting.md)); leave off otherwise.
-
-## In-note backlinks (`orbital-backlinks`)
-
-Two settings set the **context-mode defaults** for the `orbital-backlinks` code
-block. A block's own `style:` / `collapse:` keys override them; all other options
-(display mode, folder and tag filters) live in the block's markdown source. See
-the [Usage guide](usage.md#in-note-backlinks-orbital-backlinks) for the full syntax.
-
-### Context style
-
-- **Effect:** default visual style for context mode — **Dense** (compact list with
-  a vertical rule) or **Cards** (one bordered card per source).
-- **Default:** Dense.
-- **Override per block:** `style: dense|cards`.
-
-### Collapse context by default
-
-- **Effect:** when on, context-mode source groups start folded; click a chevron or
-  title to unfold. Fold state is per block and not persisted.
-- **Default:** off (expanded).
-- **Override per block:** `collapse: true|false`.
 
 ## See also
 
