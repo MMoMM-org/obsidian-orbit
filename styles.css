@@ -777,9 +777,13 @@
 }
 
 .orbital-backlink-snippet {
-	padding: 2px 6px 2px 16px;
-	font-size: var(--font-small);
+	padding: 3px 8px;
+	font-size: var(--font-ui-small);
 	color: var(--text-muted);
+	cursor: pointer;
+	border: none;
+	border-radius: var(--radius-s);
+	background: none;
 }
 
 .orbital-backlink-empty {
@@ -857,11 +861,6 @@
 }
 
 /* Context lines are clickable (open note at that line). */
-.orbital-backlink-snippet {
-	cursor: pointer;
-	border-radius: var(--radius-s);
-}
-
 .orbital-backlink-snippet:hover {
 	background: var(--background-modifier-hover);
 	color: var(--text-normal);
@@ -869,19 +868,32 @@
 
 /* ---- Dense style (default) ---- */
 .orbital-backlink-context--dense .orbital-backlink-group {
-	margin-bottom: 2px;
+	margin-bottom: 8px;
 }
 
+/* One frame around all context lines of a source. box-sizing + a right margin
+   keep the right border inside the note's rendering frame (it was clipped). */
 .orbital-backlink-context--dense .search-result-file-matches {
-	margin-left: 20px;
-	padding-left: 10px;
-	border-left: 1px solid var(--background-modifier-border);
+	box-sizing: border-box;
+	margin: 2px 6px 2px 20px;
+	padding: 3px 8px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
 }
 
 .orbital-backlink-context--dense .orbital-backlink-snippet {
+	position: relative;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+}
+
+/* Divider between context lines, inset to the text on both sides. */
+.orbital-backlink-context--dense .orbital-backlink-snippet + .orbital-backlink-snippet::before {
+	content: "";
+	position: absolute;
+	inset: 0 8px auto 8px;
+	border-top: 1px solid var(--background-modifier-border);
 }
 
 /* ---- Cards style ---- */
@@ -920,11 +932,14 @@
 	padding: 6px 12px 10px 32px;
 }
 
+/* Cards give each context line its own full box (all four borders). */
 .orbital-backlink-context--cards .orbital-backlink-snippet {
-	border-left: 2px solid var(--background-modifier-border);
-	padding: 2px 6px 2px 10px;
+	box-sizing: border-box;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+	background: var(--background-primary);
 }
 
 .orbital-backlink-context--cards .orbital-backlink-snippet:hover {
-	border-left-color: var(--interactive-accent);
+	border-color: var(--text-accent);
 }
