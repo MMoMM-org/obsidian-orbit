@@ -82,7 +82,13 @@ export type DanglingDeps = Omit<
  */
 export type RecentDeps = Omit<RecentPanelDeps, "registerDomEvent">;
 
+/** Below this content width the tab bar collapses labels to icons only. */
+const NARROW_WIDTH_PX = 320;
+
 const DEFAULT_PANEL_RENDERERS: Record<TabId, PanelRenderer> = {
+	context: (el) => {
+		el.createDiv({ cls: "orbital-panel-placeholder", text: "Context" });
+	},
 	relations: (el) => {
 		el.createDiv({ cls: "orbital-panel-placeholder", text: "Relations" });
 	},
@@ -96,7 +102,7 @@ const DEFAULT_PANEL_RENDERERS: Record<TabId, PanelRenderer> = {
 
 export class OrbitalView extends ItemView {
 	private state: OrbitalViewState = {
-		activeTab: "relations",
+		activeTab: "context",
 		danglingScope: "vault",
 		danglingGrouping: "target",
 		// "unlinkedMentions" starts collapsed: its content is scanned lazily on
@@ -163,6 +169,14 @@ export class OrbitalView extends ItemView {
 		}
 
 		this.panelRenderers = merged;
+
+		// Open on the user's configured default tab (falls back to the initial
+		// "context"). A later setState() from a restored leaf overrides this.
+		const settings = relationsDeps?.getSettings() ?? danglingDeps?.getSettings();
+		const configuredTab = settings?.defaultTab;
+		if (configuredTab && VALID_TABS.has(configuredTab)) {
+			this.state = { ...this.state, activeTab: configuredTab };
+		}
 	}
 
 	// -------------------------------------------------------------------------
@@ -203,6 +217,7 @@ export class OrbitalView extends ItemView {
 
 		this.panelContainer = this.contentEl.createDiv({ cls: "orbital-panel-container" });
 		this.renderPanel(this.state.activeTab);
+		this._updateNarrow();
 
 		// Register a cleanup function so _runCleanup() can be asserted in tests.
 		this.register(() => {
@@ -215,6 +230,18 @@ export class OrbitalView extends ItemView {
 		this.contentEl.empty();
 		this.tabBar = null;
 		this.panelContainer = null;
+	}
+
+	/** Obsidian calls this on pane resize — collapse tab labels to icons when narrow. */
+	onResize(): void {
+		this._updateNarrow();
+	}
+
+	/** Toggle the tab bar's icon-only mode based on the current content width. */
+	private _updateNarrow(): void {
+		if (!this.tabBar) return;
+		const width = this.contentEl.clientWidth;
+		this.tabBar.setNarrow(width > 0 && width < NARROW_WIDTH_PX);
 	}
 
 	// -------------------------------------------------------------------------

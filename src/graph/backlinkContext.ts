@@ -8,6 +8,8 @@
  * Domain rule reference: docs/ai/memory/domain.md
  */
 
+import type { ContextAmount } from "types/index";
+
 // ---------------------------------------------------------------------------
 // Public types
 // ---------------------------------------------------------------------------
@@ -30,11 +32,49 @@ export interface ContextSnippet {
 	after: string;
 	/** Number of links whose start falls on this line. */
 	matchCount: number;
+	/** Non-empty text of the preceding line (surrounding-lines mode only). */
+	leadLine?: string;
+	/** Non-empty text of the following line (surrounding-lines mode only). */
+	trailLine?: string;
+}
+
+// ---------------------------------------------------------------------------
+// Context amount (Context tab — how much surrounding text a snippet shows)
+// ---------------------------------------------------------------------------
+
+/** Character window per side for the compact and comfortable amounts. */
+const WINDOW_COMPACT = 90;
+const WINDOW_COMFORTABLE = 180;
+/** Effectively unbounded — shows the whole line without truncation. */
+const WINDOW_FULL = Number.MAX_SAFE_INTEGER;
+
+/** Per-side character window for a given amount ('full line' and up = whole line). */
+export function windowCharsFor(amount: ContextAmount): number {
+	switch (amount) {
+		case "compact":
+			return WINDOW_COMPACT;
+		case "comfortable":
+			return WINDOW_COMFORTABLE;
+		case "fullLine":
+		case "surroundingLines":
+			return WINDOW_FULL;
+	}
+}
+
+/** True when the amount also shows the neighbouring (previous/next) lines. */
+export function includesSurroundingLines(amount: ContextAmount): boolean {
+	return amount === "surroundingLines";
 }
 
 // ---------------------------------------------------------------------------
 // extractContext
 // ---------------------------------------------------------------------------
+
+/** Options controlling extraction beyond the per-side character window. */
+export interface ExtractContextOptions {
+	/** Also capture the non-empty previous/next physical lines (leadLine/trailLine). */
+	surroundingLines?: boolean;
+}
 
 /**
  * Build ONE windowed snippet per link line (deduped by line index).
@@ -44,6 +84,7 @@ export function extractContext(
 	content: string,
 	links: LinkOffset[],
 	windowChars: number,
+	options: ExtractContextOptions = {},
 ): ContextSnippet[] {
 	if (links.length === 0) return [];
 
@@ -53,7 +94,14 @@ export function extractContext(
 	return Array.from(byLine.entries())
 		.sort(([a], [b]) => a - b)
 		.map(([lineIndex, lineLinks]) =>
-			buildSnippet(content, lineIndex, lineLinks, lineStarts, windowChars),
+			buildSnippet(
+				content,
+				lineIndex,
+				lineLinks,
+				lineStarts,
+				windowChars,
+				options.surroundingLines ?? false,
+			),
 		);
 }
 
@@ -112,6 +160,7 @@ function buildSnippet(
 	lineLinks: LinkOffset[],
 	lineStarts: number[],
 	windowChars: number,
+	surroundingLines: boolean,
 ): ContextSnippet {
 	const lineStart = lineStarts[lineIndex]!;
 	const lineEnd =
@@ -124,13 +173,31 @@ function buildSnippet(
 	const lineBeforeLink = content.slice(lineStart, firstLink.start);
 	const lineAfterLink = content.slice(firstLink.end, lineEnd);
 
-	return {
+	const snippet: ContextSnippet = {
 		lineIndex,
 		before: truncateBefore(lineBeforeLink, windowChars),
 		match,
 		after: truncateAfter(lineAfterLink, windowChars),
 		matchCount: lineLinks.length,
 	};
+
+	if (surroundingLines) {
+		const lead = lineTextAt(content, lineIndex - 1, lineStarts);
+		const trail = lineTextAt(content, lineIndex + 1, lineStarts);
+		if (lead !== "") snippet.leadLine = lead;
+		if (trail !== "") snippet.trailLine = trail;
+	}
+
+	return snippet;
+}
+
+/** Trimmed text of a physical line, or '' when the index is out of range. */
+function lineTextAt(content: string, lineIndex: number, lineStarts: number[]): string {
+	if (lineIndex < 0 || lineIndex >= lineStarts.length) return "";
+	const start = lineStarts[lineIndex]!;
+	const end =
+		lineIndex + 1 < lineStarts.length ? lineStarts[lineIndex + 1]! - 1 : content.length;
+	return content.slice(start, end).trim();
 }
 
 /**

@@ -44,12 +44,12 @@ describe("TabBar ARIA structure", () => {
 		expect(tablist).not.toBeNull();
 	});
 
-	it("renders exactly three role=tab buttons", () => {
+	it("renders exactly four role=tab buttons", () => {
 		const el = makeContainer();
 		makeTabBar(el);
 
 		const tabs = el.querySelectorAll("[role='tab']");
-		expect(tabs.length).toBe(3);
+		expect(tabs.length).toBe(4);
 	});
 
 	it("initially the 'relations' tab is aria-selected=true", () => {
@@ -158,18 +158,18 @@ describe("TabBar keyboard navigation", () => {
 		expect(onSelect).not.toHaveBeenCalled();
 	});
 
-	it("ArrowLeft wraps from 'relations' to 'recent'", () => {
+	it("ArrowLeft wraps from the first tab ('context') to 'recent'", () => {
 		const el = makeContainer();
-		makeTabBar(el, { initialTab: "relations" });
+		makeTabBar(el, { initialTab: "context" });
 
-		const relationsTab = el.querySelector("[data-tab-id='relations']") as HTMLElement;
-		dispatch(relationsTab, "ArrowLeft");
+		const contextTab = el.querySelector("[data-tab-id='context']") as HTMLElement;
+		dispatch(contextTab, "ArrowLeft");
 
 		const focusedTab = el.querySelector("[role='tab'][tabindex='0']");
 		expect(focusedTab?.getAttribute("data-tab-id")).toBe("recent");
 	});
 
-	it("Home moves focus to first tab ('relations')", () => {
+	it("Home moves focus to first tab ('context')", () => {
 		const el = makeContainer();
 		makeTabBar(el, { initialTab: "recent" });
 
@@ -177,7 +177,7 @@ describe("TabBar keyboard navigation", () => {
 		dispatch(recentTab, "Home");
 
 		const focusedTab = el.querySelector("[role='tab'][tabindex='0']");
-		expect(focusedTab?.getAttribute("data-tab-id")).toBe("relations");
+		expect(focusedTab?.getAttribute("data-tab-id")).toBe("context");
 	});
 
 	it("End moves focus to last tab ('recent')", () => {
@@ -284,6 +284,6 @@ describe("TabBar is-narrow class toggle (Gap C)", () => {
 
 		// The span must exist in the DOM — CSS display:none is what hides it
 		const labelSpans = el.querySelectorAll(".orbital-tab-label");
-		expect(labelSpans.length).toBe(3);
+		expect(labelSpans.length).toBe(4);
 	});
 });

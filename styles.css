@@ -78,7 +78,11 @@
 
 .orbital-tab-bar [role="tab"] {
 	flex: 1 1 0;
-	padding: 4px 6px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 5px;
+	padding: 5px 6px;
 	font-size: var(--font-small);
 	color: var(--text-muted);
 	background: transparent;
@@ -91,6 +95,22 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	transition: color 80ms ease, background 80ms ease;
+}
+
+.orbital-tab-icon {
+	display: inline-flex;
+	align-items: center;
+	flex: 0 0 auto;
+}
+
+.orbital-tab-icon svg {
+	width: 15px;
+	height: 15px;
+}
+
+.orbital-tab-label {
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .orbital-tab-bar [role="tab"]:hover {
