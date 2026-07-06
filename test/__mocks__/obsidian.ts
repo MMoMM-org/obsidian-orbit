@@ -91,6 +91,49 @@ export class Component {
 		this._cleanupFns.push(fn);
 	});
 
+	/** True between load() and unload() — mirrors Obsidian's loaded flag. */
+	_loaded = false;
+
+	/**
+	 * load() — mirrors Obsidian's Component.load(): marks the component loaded
+	 * and invokes onload() once. Subclasses (MarkdownRenderChild) define onload.
+	 */
+	load(): void {
+		if (this._loaded) return;
+		this._loaded = true;
+		(this as unknown as { onload?: () => void }).onload?.();
+	}
+
+	/**
+	 * unload() — mirrors Obsidian's Component.unload(): invokes onunload() then
+	 * runs every registered cleanup fn (registerDomEvent / register / debouncer
+	 * cancellers), then unloads any child components.
+	 */
+	unload(): void {
+		if (!this._loaded) return;
+		this._loaded = false;
+		(this as unknown as { onunload?: () => void }).onunload?.();
+		this._runCleanup();
+		for (const child of this._children) child.unload();
+		this._children.length = 0;
+	}
+
+	private _children: Component[] = [];
+
+	/** addChild — loads the child and ties it to this component's lifecycle. */
+	addChild<T extends Component>(child: T): T {
+		this._children.push(child);
+		child.load();
+		return child;
+	}
+
+	/** removeChild — unloads the child and detaches it. */
+	removeChild<T extends Component>(child: T): T {
+		this._children = this._children.filter((c) => c !== child);
+		child.unload();
+		return child;
+	}
+
 	/** Simulate Obsidian calling all registered cleanup functions (for testing onunload). */
 	_runCleanup(): void {
 		for (const fn of this._cleanupFns) fn();
@@ -695,7 +738,7 @@ export class ItemView extends Component {
 	async onClose(): Promise<void> {}
 }
 
-export class MarkdownView {
+export class MarkdownView extends Component {
 	editor = {
 		replaceSelection: vi.fn(),
 		getValue: vi.fn(() => ""),
@@ -704,6 +747,12 @@ export class MarkdownView {
 	};
 	file: TFile | null = null;
 	data = "";
+	/** Content root the footer controller queries for `.markdown-preview-sizer` / `.cm-sizer`. */
+	contentEl: HTMLElement = augmentEl(document.createElement("div"));
+	/** Backing value for getMode(); tests flip via _mode / createMockMarkdownView. */
+	_mode: "source" | "preview" = "preview";
+	getMode = vi.fn((): string => this._mode);
+	getViewType = vi.fn((): string => "markdown");
 	getViewData = vi.fn((): string => this.data);
 	save = vi.fn(async (): Promise<void> => {});
 }
@@ -818,6 +867,29 @@ export function createMockTFile(overrides?: Partial<{
 		};
 	}
 	return file;
+}
+
+/**
+ * createMockMarkdownView — a MarkdownView whose contentEl holds the reading and
+ * source sizers the footer controller injects into. `mode` selects the active
+ * mode reported by getMode(); by default both sizers are present so a mode flip
+ * still finds its target.
+ */
+export function createMockMarkdownView(opts?: {
+	file?: TFile | null;
+	mode?: "source" | "preview";
+	sizers?: Array<"preview" | "source">;
+}): MarkdownView {
+	const view = new MarkdownView();
+	view.file = opts?.file ?? null;
+	view._mode = opts?.mode ?? "preview";
+	const which = opts?.sizers ?? ["preview", "source"];
+	for (const kind of which) {
+		const sizer = augmentEl(document.createElement("div"));
+		sizer.className = kind === "preview" ? "markdown-preview-sizer" : "cm-sizer";
+		view.contentEl.appendChild(sizer);
+	}
+	return view;
 }
 
 export function createMockCachedMetadata(overrides?: Partial<CachedMetadata>): CachedMetadata {
