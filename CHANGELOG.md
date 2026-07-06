@@ -1,3 +1,12 @@
+## [1.1.0](https://github.com/MMoMM-org/obsidian-orbital/compare/1.0.1...1.1.0) (2026-07-06)
+
+### Features
+
+* **backlink-codeblock:** render orbital-backlinks block + wire processor ([158c28b](https://github.com/MMoMM-org/obsidian-orbital/commit/158c28b69b36b7244fa57011a83a5842be5baedc))
+* **codeblock:** context styles, collapse & click-to-open (v1.1) ([c1e627b](https://github.com/MMoMM-org/obsidian-orbital/commit/c1e627bb44005cb38db98474cdf61befaeaf7dd5))
+* **codeblock:** per-source occurrence count in context mode ([d81226c](https://github.com/MMoMM-org/obsidian-orbital/commit/d81226ce179e059f09f3488ef92f5630f4cbef5e))
+* **codeblock:** pure core for orbital-backlinks (Phase 1) ([580bddf](https://github.com/MMoMM-org/obsidian-orbital/commit/580bddf4eb6217f447bf935ac7ef351094a85c8d))
+
 ## [1.0.1](https://github.com/MMoMM-org/obsidian-orbital/compare/1.0.0...1.0.1) (2026-07-01)
 
 ### Bug Fixes
