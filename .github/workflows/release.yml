@@ -56,7 +56,7 @@ jobs:
 
             - name: Attest build provenance
               if: hashFiles('build/main.js') != ''
-              uses: actions/attest-build-provenance@v2
+              uses: actions/attest-build-provenance@v4
               with:
                   subject-path: |
                       build/main.js
