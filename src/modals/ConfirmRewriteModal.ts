@@ -73,7 +73,11 @@ interface AugmentedEl {
 			attr?: Record<string, string>;
 		},
 	): HTMLElement;
-	createDiv(opts?: { cls?: string; text?: string }): HTMLElement;
+	createDiv(opts?: {
+		cls?: string;
+		text?: string;
+		attr?: Record<string, string>;
+	}): HTMLElement;
 	empty(): void;
 }
 

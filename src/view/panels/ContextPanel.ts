@@ -30,8 +30,16 @@ interface AugmentedEl {
 		tag: string,
 		opts?: { text?: string; cls?: string; attr?: Record<string, string> },
 	): HTMLElement;
-	createDiv(opts?: { cls?: string; text?: string }): HTMLElement;
-	createSpan(opts?: { cls?: string; text?: string }): HTMLElement;
+	createDiv(opts?: {
+		cls?: string;
+		text?: string;
+		attr?: Record<string, string>;
+	}): HTMLElement;
+	createSpan(opts?: {
+		cls?: string;
+		text?: string;
+		attr?: Record<string, string>;
+	}): HTMLElement;
 }
 
 export interface ContextPanelDeps {

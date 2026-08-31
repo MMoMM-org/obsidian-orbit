@@ -181,8 +181,16 @@ interface AugmentedEl {
 			attr?: Record<string, string>;
 		},
 	): HTMLElement;
-	createDiv(opts?: { cls?: string; text?: string }): HTMLElement;
-	createSpan(opts?: { cls?: string; text?: string }): HTMLElement;
+	createDiv(opts?: {
+		cls?: string;
+		text?: string;
+		attr?: Record<string, string>;
+	}): HTMLElement;
+	createSpan(opts?: {
+		cls?: string;
+		text?: string;
+		attr?: Record<string, string>;
+	}): HTMLElement;
 	empty(): void;
 	classList: { toggle(cls: string, force?: boolean): void; add(...cls: string[]): void; contains(cls: string): boolean };
 }
@@ -432,13 +440,13 @@ export class DanglingPanel {
 	): void {
 		const isHighlighted = activeFilter === dt.target;
 
-		const groupEl = (container as unknown as AugmentedEl).createEl("div", {
+		const groupEl = (container as unknown as AugmentedEl).createDiv({
 			cls: `orbital-dangling-group tree-item${isHighlighted ? " is-highlighted" : ""}`,
 			attr: { "data-target": dt.target },
 		});
 
 		// Group header row
-		const header = (groupEl as unknown as AugmentedEl).createEl("div", {
+		const header = (groupEl as unknown as AugmentedEl).createDiv({
 			cls: "orbital-dangling-group-header tree-item-self",
 		});
 
@@ -467,12 +475,12 @@ export class DanglingPanel {
 		this.renderActionButtons(actions, dt.target, scope, liveRegion);
 
 		// Children: source occurrences
-		const children = (groupEl as unknown as AugmentedEl).createEl("div", {
+		const children = (groupEl as unknown as AugmentedEl).createDiv({
 			cls: "orbital-dangling-group-children tree-item-children",
 		});
 
 		for (const occ of dt.occurrences) {
-			const occRow = (children as unknown as AugmentedEl).createEl("div", {
+			const occRow = (children as unknown as AugmentedEl).createDiv({
 				cls: "orbital-dangling-occurrence tree-item is-clickable",
 				attr: { "data-path": occ.sourcePath },
 			});
@@ -557,12 +565,12 @@ export class DanglingPanel {
 		settings: OrbitalSettings,
 		liveRegion: HTMLElement,
 	): void {
-		const groupEl = (container as unknown as AugmentedEl).createEl("div", {
+		const groupEl = (container as unknown as AugmentedEl).createDiv({
 			cls: "orbital-dangling-group tree-item",
 			attr: { "data-source": sourcePath },
 		});
 
-		const header = (groupEl as unknown as AugmentedEl).createEl("div", {
+		const header = (groupEl as unknown as AugmentedEl).createDiv({
 			cls: "orbital-dangling-group-header tree-item-self",
 		});
 
@@ -581,12 +589,12 @@ export class DanglingPanel {
 			void leaf.openLinkText(sourcePath, sourcePath);
 		});
 
-		const children = (groupEl as unknown as AugmentedEl).createEl("div", {
+		const children = (groupEl as unknown as AugmentedEl).createDiv({
 			cls: "orbital-dangling-group-children tree-item-children",
 		});
 
 		for (const dt of sourceTargets) {
-			const itemEl = (children as unknown as AugmentedEl).createEl("div", {
+			const itemEl = (children as unknown as AugmentedEl).createDiv({
 				cls: "orbital-dangling-target-item tree-item",
 			});
 
@@ -873,7 +881,7 @@ export class DanglingPanel {
 	// -------------------------------------------------------------------------
 
 	private renderEmptyState(container: HTMLElement): void {
-		(container as unknown as AugmentedEl).createEl("div", {
+		(container as unknown as AugmentedEl).createDiv({
 			cls: "orbital-dangling-empty",
 			text: "No dangling links in this scope.",
 		});
@@ -884,7 +892,7 @@ export class DanglingPanel {
 	 * The toolbar (with the search box) stays rendered so the user can clear it.
 	 */
 	private renderNoMatches(container: HTMLElement): void {
-		(container as unknown as AugmentedEl).createEl("div", {
+		(container as unknown as AugmentedEl).createDiv({
 			cls: "orbital-dangling-empty",
 			text: "No dangling links match the search.",
 		});

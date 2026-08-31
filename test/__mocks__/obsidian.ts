@@ -458,18 +458,32 @@ export function augmentEl(el: HTMLElement): HTMLElement {
 		return child;
 	};
 
-	any["createDiv"] = (opts?: { cls?: string; text?: string }): HTMLElement => {
+	any["createDiv"] = (opts?: {
+		cls?: string;
+		text?: string;
+		attr?: Record<string, string>;
+	}): HTMLElement => {
 		const div = augmentEl(document.createElement("div"));
 		if (opts?.cls) div.className = opts.cls;
 		if (opts?.text) div.textContent = opts.text;
+		if (opts?.attr) {
+			for (const [k, v] of Object.entries(opts.attr)) div.setAttribute(k, v);
+		}
 		el.appendChild(div);
 		return div;
 	};
 
-	any["createSpan"] = (opts?: { cls?: string; text?: string }): HTMLElement => {
+	any["createSpan"] = (opts?: {
+		cls?: string;
+		text?: string;
+		attr?: Record<string, string>;
+	}): HTMLElement => {
 		const span = augmentEl(document.createElement("span"));
 		if (opts?.cls) span.className = opts.cls;
 		if (opts?.text) span.textContent = opts.text;
+		if (opts?.attr) {
+			for (const [k, v] of Object.entries(opts.attr)) span.setAttribute(k, v);
+		}
 		el.appendChild(span);
 		return span;
 	};
@@ -540,22 +554,28 @@ function installObsidianDomHelpers(): void {
 
 	proto["createDiv"] = function (
 		this: HTMLElement,
-		opts?: { cls?: string; text?: string },
+		opts?: { cls?: string; text?: string; attr?: Record<string, string> },
 	): HTMLElement {
 		const div = document.createElement("div");
 		if (opts?.cls) div.className = opts.cls;
 		if (opts?.text) div.textContent = opts.text;
+		if (opts?.attr) {
+			for (const [k, v] of Object.entries(opts.attr)) div.setAttribute(k, v);
+		}
 		this.appendChild(div);
 		return div;
 	};
 
 	proto["createSpan"] = function (
 		this: HTMLElement,
-		opts?: { cls?: string; text?: string },
+		opts?: { cls?: string; text?: string; attr?: Record<string, string> },
 	): HTMLElement {
 		const span = document.createElement("span");
 		if (opts?.cls) span.className = opts.cls;
 		if (opts?.text) span.textContent = opts.text;
+		if (opts?.attr) {
+			for (const [k, v] of Object.entries(opts.attr)) span.setAttribute(k, v);
+		}
 		this.appendChild(span);
 		return span;
 	};
