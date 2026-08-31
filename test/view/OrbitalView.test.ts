@@ -718,9 +718,15 @@ function makeDanglingDeps(unresolved: Record<string, Record<string, number>> = {
 		applyDelete: vi.fn(async () => ({ filesSucceeded: 0, filesFailed: [] })),
 	};
 
-	const MockConfirmRewriteModal = vi.fn().mockImplementation(() => ({ open: vi.fn() }));
-	const MockFolderPicker = vi.fn().mockImplementation(() => ({ pickFolder: vi.fn(async () => null) }));
-	const MockNotePicker = vi.fn().mockImplementation(() => ({ pickNote: vi.fn(async () => null) }));
+	const MockConfirmRewriteModal = vi.fn().mockImplementation(function () {
+		return { open: vi.fn() };
+	});
+	const MockFolderPicker = vi.fn().mockImplementation(function () {
+		return { pickFolder: vi.fn(async () => null) };
+	});
+	const MockNotePicker = vi.fn().mockImplementation(function () {
+		return { pickNote: vi.fn(async () => null) };
+	});
 	const mockCreateNote = vi.fn(async () => ({
 		file: { path: "New Note.md" },
 		existed: false,

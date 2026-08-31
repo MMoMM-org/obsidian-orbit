@@ -583,14 +583,14 @@ describe("AC3 — Dangling Links tab", () => {
 		};
 
 		let capturedPreview: { occurrences: number; files: { path: string; count: number }[] } | null = null;
-		const MockConfirmModal = vi.fn().mockImplementation(
-			(_app: unknown, opts: { preview: { occurrences: number; files: { path: string; count: number }[] }; onConfirm: (name: string) => void }) => ({
+		const MockConfirmModal = vi.fn().mockImplementation(function (_app: unknown, opts: { preview: { occurrences: number; files: { path: string; count: number }[] }; onConfirm: (name: string) => void }) {
+			return {
 				open: vi.fn(() => {
 					capturedPreview = opts.preview;
 					opts.onConfirm("NewName");
 				}),
-			}),
-		);
+			};
+		});
 
 		const container = augmentEl(document.createElement("div"));
 		const panel = new DanglingPanel({
@@ -609,8 +609,12 @@ describe("AC3 — Dangling Links tab", () => {
 			setSearchQuery: vi.fn(),
 			service: mockService,
 			ConfirmRewriteModal: MockConfirmModal as unknown as Parameters<typeof DanglingPanel>[0]["ConfirmRewriteModal"],
-			folderPicker: vi.fn().mockImplementation(() => ({ pickFolder: async () => null })) as unknown as Parameters<typeof DanglingPanel>[0]["folderPicker"],
-			notePicker: vi.fn().mockImplementation(() => ({ pickNote: async () => null })) as unknown as Parameters<typeof DanglingPanel>[0]["notePicker"],
+			folderPicker: vi.fn().mockImplementation(function () {
+				return { pickFolder: async () => null };
+			}) as unknown as Parameters<typeof DanglingPanel>[0]["folderPicker"],
+			notePicker: vi.fn().mockImplementation(function () {
+				return { pickNote: async () => null };
+			}) as unknown as Parameters<typeof DanglingPanel>[0]["notePicker"],
 			createNote: vi.fn(async () => ({ file: { path: "OldTarget.md" }, existed: false })),
 			registerDomEvent: (el, type, handler) => el.addEventListener(type, handler as EventListener),
 		});
@@ -652,16 +656,18 @@ describe("AC3 — Dangling Links tab", () => {
 			applyDelete: vi.fn(async () => ({ filesSucceeded: 1, filesFailed: [] })),
 		};
 
-		const MockConfirmModal = vi.fn().mockImplementation(
-			(_app: unknown, opts: { onConfirm: (name: string) => void }) => ({
+		const MockConfirmModal = vi.fn().mockImplementation(function (_app: unknown, opts: { onConfirm: (name: string) => void }) {
+			return {
 				open: vi.fn(() => { opts.onConfirm(""); }),
-			}),
-		);
+			};
+		});
 
 		const pickedNote = { path: "Notes/RealNote.md" };
-		const MockNotePicker = vi.fn().mockImplementation(() => ({
-			pickNote: async () => pickedNote,
-		}));
+		const MockNotePicker = vi.fn().mockImplementation(function () {
+			return {
+				pickNote: async () => pickedNote,
+			};
+		});
 
 		const container = augmentEl(document.createElement("div"));
 		const panel = new DanglingPanel({
@@ -680,7 +686,9 @@ describe("AC3 — Dangling Links tab", () => {
 			setSearchQuery: vi.fn(),
 			service: mockService,
 			ConfirmRewriteModal: MockConfirmModal as unknown as Parameters<typeof DanglingPanel>[0]["ConfirmRewriteModal"],
-			folderPicker: vi.fn().mockImplementation(() => ({ pickFolder: async () => null })) as unknown as Parameters<typeof DanglingPanel>[0]["folderPicker"],
+			folderPicker: vi.fn().mockImplementation(function () {
+				return { pickFolder: async () => null };
+			}) as unknown as Parameters<typeof DanglingPanel>[0]["folderPicker"],
 			notePicker: MockNotePicker as unknown as Parameters<typeof DanglingPanel>[0]["notePicker"],
 			createNote: vi.fn(async () => ({ file: { path: "DanglingTarget.md" }, existed: false })),
 			registerDomEvent: (el, type, handler) => el.addEventListener(type, handler as EventListener),
@@ -715,9 +723,11 @@ describe("AC3 — Dangling Links tab", () => {
 		idx.buildFull();
 
 		const mockCreateNote = vi.fn(async () => ({ file: { path: "MissingNote.md" }, existed: false }));
-		const MockFolderPicker = vi.fn().mockImplementation(() => ({
-			pickFolder: async () => ({ path: "Notes" }),
-		}));
+		const MockFolderPicker = vi.fn().mockImplementation(function () {
+			return {
+				pickFolder: async () => ({ path: "Notes" }),
+			};
+		});
 
 		Notice._reset();
 
@@ -744,7 +754,9 @@ describe("AC3 — Dangling Links tab", () => {
 			},
 			ConfirmRewriteModal: vi.fn() as unknown as Parameters<typeof DanglingPanel>[0]["ConfirmRewriteModal"],
 			folderPicker: MockFolderPicker as unknown as Parameters<typeof DanglingPanel>[0]["folderPicker"],
-			notePicker: vi.fn().mockImplementation(() => ({ pickNote: async () => null })) as unknown as Parameters<typeof DanglingPanel>[0]["notePicker"],
+			notePicker: vi.fn().mockImplementation(function () {
+				return { pickNote: async () => null };
+			}) as unknown as Parameters<typeof DanglingPanel>[0]["notePicker"],
 			createNote: mockCreateNote,
 			registerDomEvent: (el, type, handler) => el.addEventListener(type, handler as EventListener),
 		});
@@ -781,12 +793,12 @@ describe("AC3 — Dangling Links tab", () => {
 			applyAlias: vi.fn(async () => ({ filesSucceeded: 1, filesFailed: [] })),
 		};
 
-		const MockConfirmModal = vi.fn().mockImplementation(
-			(_app: unknown, opts: { onConfirm: (name: string) => void }) => ({
+		const MockConfirmModal = vi.fn().mockImplementation(function (_app: unknown, opts: { onConfirm: (name: string) => void }) {
+			return {
 				open: vi.fn(() => { opts.onConfirm(""); }),
 				onlyInThisNote: false,
-			}),
-		);
+			};
+		});
 
 		const container = augmentEl(document.createElement("div"));
 		const panel = new DanglingPanel({
@@ -805,8 +817,12 @@ describe("AC3 — Dangling Links tab", () => {
 			setSearchQuery: vi.fn(),
 			service: mockService,
 			ConfirmRewriteModal: MockConfirmModal as unknown as Parameters<typeof DanglingPanel>[0]["ConfirmRewriteModal"],
-			folderPicker: vi.fn().mockImplementation(() => ({ pickFolder: async () => null })) as unknown as Parameters<typeof DanglingPanel>[0]["folderPicker"],
-			notePicker: vi.fn().mockImplementation(() => ({ pickNote: async () => null })) as unknown as Parameters<typeof DanglingPanel>[0]["notePicker"],
+			folderPicker: vi.fn().mockImplementation(function () {
+				return { pickFolder: async () => null };
+			}) as unknown as Parameters<typeof DanglingPanel>[0]["folderPicker"],
+			notePicker: vi.fn().mockImplementation(function () {
+				return { pickNote: async () => null };
+			}) as unknown as Parameters<typeof DanglingPanel>[0]["notePicker"],
 			createNote: vi.fn(async () => ({ file: { path: "GhostLink.md" }, existed: false })),
 			registerDomEvent: (el, type, handler) => el.addEventListener(type, handler as EventListener),
 		});
@@ -853,11 +869,11 @@ describe("AC3 — Dangling Links tab", () => {
 			applyDelete: vi.fn(async () => ({ filesSucceeded: 1, filesFailed: [] })),
 		};
 
-		const MockConfirmModal = vi.fn().mockImplementation(
-			(_app: unknown, opts: { onConfirm: (name: string) => void }) => ({
+		const MockConfirmModal = vi.fn().mockImplementation(function (_app: unknown, opts: { onConfirm: (name: string) => void }) {
+			return {
 				open: vi.fn(() => { opts.onConfirm("RenamedTarget"); }),
-			}),
-		);
+			};
+		});
 
 		const container = augmentEl(document.createElement("div"));
 		const panel = new DanglingPanel({
@@ -876,8 +892,12 @@ describe("AC3 — Dangling Links tab", () => {
 			setSearchQuery: vi.fn(),
 			service: mockService,
 			ConfirmRewriteModal: MockConfirmModal as unknown as Parameters<typeof DanglingPanel>[0]["ConfirmRewriteModal"],
-			folderPicker: vi.fn().mockImplementation(() => ({ pickFolder: async () => null })) as unknown as Parameters<typeof DanglingPanel>[0]["folderPicker"],
-			notePicker: vi.fn().mockImplementation(() => ({ pickNote: async () => null })) as unknown as Parameters<typeof DanglingPanel>[0]["notePicker"],
+			folderPicker: vi.fn().mockImplementation(function () {
+				return { pickFolder: async () => null };
+			}) as unknown as Parameters<typeof DanglingPanel>[0]["folderPicker"],
+			notePicker: vi.fn().mockImplementation(function () {
+				return { pickNote: async () => null };
+			}) as unknown as Parameters<typeof DanglingPanel>[0]["notePicker"],
 			createNote: vi.fn(async () => ({ file: { path: "ComplexTarget.md" }, existed: false })),
 			registerDomEvent: (el, type, handler) => el.addEventListener(type, handler as EventListener),
 		});
@@ -926,11 +946,11 @@ describe("AC3 — Dangling Links tab", () => {
 			applyDelete: vi.fn(async () => ({ filesSucceeded: 0, filesFailed: [] })),
 		};
 
-		const MockConfirmModal = vi.fn().mockImplementation(
-			(_app: unknown, opts: { onConfirm: (name: string) => void }) => ({
+		const MockConfirmModal = vi.fn().mockImplementation(function (_app: unknown, opts: { onConfirm: (name: string) => void }) {
+			return {
 				open: vi.fn(() => { opts.onConfirm("NewName"); }),
-			}),
-		);
+			};
+		});
 
 		const container = augmentEl(document.createElement("div"));
 		const panel = new DanglingPanel({
@@ -949,8 +969,12 @@ describe("AC3 — Dangling Links tab", () => {
 			setSearchQuery: vi.fn(),
 			service: mockService,
 			ConfirmRewriteModal: MockConfirmModal as unknown as Parameters<typeof DanglingPanel>[0]["ConfirmRewriteModal"],
-			folderPicker: vi.fn().mockImplementation(() => ({ pickFolder: async () => null })) as unknown as Parameters<typeof DanglingPanel>[0]["folderPicker"],
-			notePicker: vi.fn().mockImplementation(() => ({ pickNote: async () => null })) as unknown as Parameters<typeof DanglingPanel>[0]["notePicker"],
+			folderPicker: vi.fn().mockImplementation(function () {
+				return { pickFolder: async () => null };
+			}) as unknown as Parameters<typeof DanglingPanel>[0]["folderPicker"],
+			notePicker: vi.fn().mockImplementation(function () {
+				return { pickNote: async () => null };
+			}) as unknown as Parameters<typeof DanglingPanel>[0]["notePicker"],
 			createNote: vi.fn(async () => ({ file: { path: "BrokenLink.md" }, existed: false })),
 			registerDomEvent: (el, type, handler) => el.addEventListener(type, handler as EventListener),
 		});

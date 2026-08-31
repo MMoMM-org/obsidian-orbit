@@ -8,12 +8,12 @@ export default defineConfig({
 			// Obsidian runtime replaced with hand-written mock for tests.
 			{
 				find: "obsidian",
-				replacement: path.resolve(__dirname, "test/__mocks__/obsidian.ts"),
+				replacement: path.resolve(import.meta.dirname, "test/__mocks__/obsidian.ts"),
 			},
 			// main.ts sits at the src/ root — resolve it directly.
 			{
 				find: "main",
-				replacement: path.resolve(__dirname, "src/main.ts"),
+				replacement: path.resolve(import.meta.dirname, "src/main.ts"),
 			},
 			// Mirror tsconfig baseUrl: "src" for the top-level src/ directories.
 			// Each entry maps the directory name to its absolute path so that
@@ -29,7 +29,7 @@ export default defineConfig({
 			// Add new src/ subdirectories here when they are created.
 			{
 				find: /^types(\/.*)?$/,
-				replacement: path.resolve(__dirname, "src/types$1"),
+				replacement: path.resolve(import.meta.dirname, "src/types$1"),
 				customResolver(updatedId: string) {
 					if (fs.statSync(updatedId, { throwIfNoEntry: false })?.isDirectory()) {
 						return `${updatedId}/index.ts`;
@@ -39,7 +39,7 @@ export default defineConfig({
 			},
 			{
 				find: /^settings(\/.*)?$/,
-				replacement: path.resolve(__dirname, "src/settings$1"),
+				replacement: path.resolve(import.meta.dirname, "src/settings$1"),
 				customResolver(updatedId: string) {
 					if (fs.statSync(updatedId, { throwIfNoEntry: false })?.isDirectory()) {
 						return `${updatedId}/index.ts`;
@@ -49,7 +49,7 @@ export default defineConfig({
 			},
 			{
 				find: /^shared(\/.*)?$/,
-				replacement: path.resolve(__dirname, "src/shared$1"),
+				replacement: path.resolve(import.meta.dirname, "src/shared$1"),
 				customResolver(updatedId: string) {
 					if (fs.statSync(updatedId, { throwIfNoEntry: false })?.isDirectory()) {
 						return `${updatedId}/index.ts`;
@@ -59,7 +59,7 @@ export default defineConfig({
 			},
 			{
 				find: /^view(\/.*)?$/,
-				replacement: path.resolve(__dirname, "src/view$1"),
+				replacement: path.resolve(import.meta.dirname, "src/view$1"),
 				customResolver(updatedId: string) {
 					if (fs.statSync(updatedId, { throwIfNoEntry: false })?.isDirectory()) {
 						return `${updatedId}/index.ts`;
@@ -69,7 +69,7 @@ export default defineConfig({
 			},
 			{
 				find: /^graph(\/.*)?$/,
-				replacement: path.resolve(__dirname, "src/graph$1"),
+				replacement: path.resolve(import.meta.dirname, "src/graph$1"),
 				customResolver(updatedId: string) {
 					if (fs.statSync(updatedId, { throwIfNoEntry: false })?.isDirectory()) {
 						return `${updatedId}/index.ts`;
@@ -79,7 +79,7 @@ export default defineConfig({
 			},
 			{
 				find: /^links(\/.*)?$/,
-				replacement: path.resolve(__dirname, "src/links$1"),
+				replacement: path.resolve(import.meta.dirname, "src/links$1"),
 				customResolver(updatedId: string) {
 					if (fs.statSync(updatedId, { throwIfNoEntry: false })?.isDirectory()) {
 						return `${updatedId}/index.ts`;
@@ -89,7 +89,7 @@ export default defineConfig({
 			},
 			{
 				find: /^modals(\/.*)?$/,
-				replacement: path.resolve(__dirname, "src/modals$1"),
+				replacement: path.resolve(import.meta.dirname, "src/modals$1"),
 				customResolver(updatedId: string) {
 					if (fs.statSync(updatedId, { throwIfNoEntry: false })?.isDirectory()) {
 						return `${updatedId}/index.ts`;
@@ -99,7 +99,7 @@ export default defineConfig({
 			},
 			{
 				find: /^recent(\/.*)?$/,
-				replacement: path.resolve(__dirname, "src/recent$1"),
+				replacement: path.resolve(import.meta.dirname, "src/recent$1"),
 				customResolver(updatedId: string) {
 					if (fs.statSync(updatedId, { throwIfNoEntry: false })?.isDirectory()) {
 						return `${updatedId}/index.ts`;
@@ -109,7 +109,7 @@ export default defineConfig({
 			},
 			{
 				find: /^codeblock(\/.*)?$/,
-				replacement: path.resolve(__dirname, "src/codeblock$1"),
+				replacement: path.resolve(import.meta.dirname, "src/codeblock$1"),
 				customResolver(updatedId: string) {
 					if (fs.statSync(updatedId, { throwIfNoEntry: false })?.isDirectory()) {
 						return `${updatedId}/index.ts`;
@@ -119,7 +119,7 @@ export default defineConfig({
 			},
 			{
 				find: /^footer(\/.*)?$/,
-				replacement: path.resolve(__dirname, "src/footer$1"),
+				replacement: path.resolve(import.meta.dirname, "src/footer$1"),
 				customResolver(updatedId: string) {
 					if (fs.statSync(updatedId, { throwIfNoEntry: false })?.isDirectory()) {
 						return `${updatedId}/index.ts`;
