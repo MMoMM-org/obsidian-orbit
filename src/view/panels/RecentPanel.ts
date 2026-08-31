@@ -89,8 +89,16 @@ interface AugmentedEl {
 			attr?: Record<string, string>;
 		},
 	): HTMLElement;
-	createDiv(opts?: { cls?: string; text?: string }): HTMLElement;
-	createSpan(opts?: { cls?: string; text?: string }): HTMLElement;
+	createDiv(opts?: {
+		cls?: string;
+		text?: string;
+		attr?: Record<string, string>;
+	}): HTMLElement;
+	createSpan(opts?: {
+		cls?: string;
+		text?: string;
+		attr?: Record<string, string>;
+	}): HTMLElement;
 	empty(): void;
 }
 
@@ -131,7 +139,7 @@ export class RecentPanel {
 		}
 
 		const collisionSet = this.buildCollisionSet(entries);
-		const list = (container as unknown as AugmentedEl).createEl("div", {
+		const list = (container as unknown as AugmentedEl).createDiv({
 			cls: "orbital-recent-list",
 		});
 
@@ -204,7 +212,7 @@ export class RecentPanel {
 		entry: RecentFileEntry,
 		showPath: boolean,
 	): void {
-		const row = (container as unknown as AugmentedEl).createEl("div", {
+		const row = (container as unknown as AugmentedEl).createDiv({
 			cls: "orbital-recent-row nav-file tree-item-self is-clickable",
 			attr: {
 				draggable: "true",
@@ -350,7 +358,7 @@ export class RecentPanel {
 	// -------------------------------------------------------------------------
 
 	private renderEmptyState(container: HTMLElement): void {
-		(container as unknown as AugmentedEl).createEl("div", {
+		(container as unknown as AugmentedEl).createDiv({
 			cls: "orbital-recent-empty",
 			text: "No recent notes yet.",
 		});

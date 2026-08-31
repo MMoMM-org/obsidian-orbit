@@ -59,8 +59,16 @@ interface AugmentedEl {
 		tag: string,
 		opts?: { text?: string; cls?: string; attr?: Record<string, string> },
 	): HTMLElement;
-	createDiv(opts?: { cls?: string; text?: string }): HTMLElement;
-	createSpan(opts?: { cls?: string; text?: string }): HTMLElement;
+	createDiv(opts?: {
+		cls?: string;
+		text?: string;
+		attr?: Record<string, string>;
+	}): HTMLElement;
+	createSpan(opts?: {
+		cls?: string;
+		text?: string;
+		attr?: Record<string, string>;
+	}): HTMLElement;
 	empty(): void;
 }
 
@@ -179,7 +187,7 @@ export abstract class BacklinkRenderChild extends MarkdownRenderChild {
 
 	private renderWarnings(el: AugmentedEl): void {
 		if (this.config.warnings.length === 0) return;
-		const notice = el.createEl("div", { cls: "orbital-backlink-notice" });
+		const notice = el.createDiv({ cls: "orbital-backlink-notice" });
 		for (const warning of this.config.warnings) {
 			(notice as unknown as AugmentedEl).createDiv({
 				cls: "orbital-backlink-notice-line",
@@ -190,7 +198,7 @@ export abstract class BacklinkRenderChild extends MarkdownRenderChild {
 
 	private renderCompactRow(el: AugmentedEl, path: string): void {
 		const file = this.deps.app.vault.getFileByPath(path);
-		const row = el.createEl("div", {
+		const row = el.createDiv({
 			cls: "tree-item nav-file-title is-clickable orbital-backlink-item",
 			attr: { "data-path": path },
 		});

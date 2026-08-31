@@ -502,7 +502,7 @@ export class OrbitalView extends ItemView {
 		this.panelContainer.empty();
 
 		// Build the new panel — tabindex=-1 makes it programmatically focusable (Gap A).
-		const panelEl = this.panelContainer.createEl("div", {
+		const panelEl = this.panelContainer.createDiv({
 			attr: {
 				role: "tabpanel",
 				"aria-labelledby": `orbital-tab-${tabId}`,

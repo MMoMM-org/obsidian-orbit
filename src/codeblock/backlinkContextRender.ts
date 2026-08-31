@@ -23,8 +23,16 @@ interface AugmentedEl {
 		tag: string,
 		opts?: { text?: string; cls?: string; attr?: Record<string, string> },
 	): HTMLElement;
-	createDiv(opts?: { cls?: string; text?: string }): HTMLElement;
-	createSpan(opts?: { cls?: string; text?: string }): HTMLElement;
+	createDiv(opts?: {
+		cls?: string;
+		text?: string;
+		attr?: Record<string, string>;
+	}): HTMLElement;
+	createSpan(opts?: {
+		cls?: string;
+		text?: string;
+		attr?: Record<string, string>;
+	}): HTMLElement;
 }
 
 /** Everything the group renderer needs from its host. */
@@ -133,14 +141,14 @@ function renderGroup(
 	snippets: ContextSnippet[],
 	ctx: ContextRenderContext,
 ): void {
-	const group = wrap.createEl("div", {
+	const group = wrap.createDiv({
 		cls: "search-result orbital-backlink-group"
 			+ (ctx.collapsed ? " is-collapsed" : ""),
 		attr: { "data-path": path },
 	});
 	const groupEl = group as unknown as AugmentedEl;
 
-	const title = groupEl.createEl("div", {
+	const title = groupEl.createDiv({
 		cls: "search-result-file-title is-clickable orbital-backlink-group-title",
 	});
 	const titleEl = title as unknown as AugmentedEl;
@@ -158,7 +166,7 @@ function renderGroup(
 	ctx.register(title, "click", () => group.classList.toggle("is-collapsed"));
 	ctx.hover(title, path);
 
-	const matches = groupEl.createEl("div", { cls: "search-result-file-matches" });
+	const matches = groupEl.createDiv({ cls: "search-result-file-matches" });
 	for (const snippet of snippets) {
 		renderSnippet(matches, snippet, path, ctx);
 	}
@@ -170,7 +178,7 @@ function renderSnippet(
 	path: string,
 	ctx: ContextRenderContext,
 ): void {
-	const row = (container as unknown as AugmentedEl).createEl("div", {
+	const row = (container as unknown as AugmentedEl).createDiv({
 		cls: "search-result-file-match is-clickable orbital-backlink-snippet",
 	});
 	const rowEl = row as unknown as AugmentedEl;

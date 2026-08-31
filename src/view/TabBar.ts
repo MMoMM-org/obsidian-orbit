@@ -107,7 +107,7 @@ export class TabBar {
 
 	private buildTablist(): void {
 		// Use Obsidian-augmented createEl for popout-window-safe element creation.
-		const tablist = (this.container as unknown as AugmentedEl).createEl("div", {
+		const tablist = (this.container as unknown as AugmentedEl).createDiv({
 			attr: {
 				role: "tablist",
 				class: "orbital-tab-bar nav-buttons-container",
@@ -136,11 +136,11 @@ export class TabBar {
 				"aria-label": def.label,
 			},
 		});
-		const icon = (btn as unknown as AugmentedEl).createEl("span", {
+		const icon = (btn as unknown as AugmentedEl).createSpan({
 			cls: "orbital-tab-icon",
 		});
 		setIcon(icon, def.icon);
-		(btn as unknown as AugmentedEl).createEl("span", {
+		(btn as unknown as AugmentedEl).createSpan({
 			cls: "orbital-tab-label",
 			text: def.label,
 		});
@@ -251,6 +251,16 @@ interface AugmentedEl {
 			attr?: Record<string, string>;
 		},
 	): HTMLElement;
+	createDiv(opts?: {
+		cls?: string;
+		text?: string;
+		attr?: Record<string, string>;
+	}): HTMLElement;
+	createSpan(opts?: {
+		cls?: string;
+		text?: string;
+		attr?: Record<string, string>;
+	}): HTMLElement;
 	textContent: string | null;
 	classList: DOMTokenList;
 	setAttribute(name: string, value: string): void;
