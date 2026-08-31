@@ -16,7 +16,7 @@
 		"allowSyntheticDefaultImports": true,
 		"useUnknownInCatchVariables": true,
 		"forceConsistentCasingInFileNames": true,
-		"lib": ["DOM", "DOM.Iterable", "ES2020"]
+		"lib": ["DOM", "DOM.Iterable", "ES2022"]
 	},
 	"include": ["src/**/*.ts"]
 }
