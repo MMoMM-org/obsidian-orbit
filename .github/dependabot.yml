@@ -20,6 +20,12 @@ updates:
           - minor
           - patch
     # Majors stay ungrouped so each lands in its own reviewable PR.
+    ignore:
+      # CodeMirror must match the exact versions the Obsidian app ships;
+      # obsidian's own peerDependencies pin them. Bumping causes a second
+      # CodeMirror copy and type mismatches, so never auto-update these.
+      - dependency-name: "@codemirror/state"
+      - dependency-name: "@codemirror/view"
 
   - package-ecosystem: github-actions
     directory: /
