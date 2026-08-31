@@ -286,7 +286,10 @@ export class Plugin extends Component {
 	/** registerEditorExtension — records the CodeMirror extension (opaque in tests). */
 	registerEditorExtension = vi.fn((_extension: unknown) => {});
 	/** onExternalSettingsChange: called by Obsidian when settings change on disk. */
-	onExternalSettingsChange?: () => void | Promise<void>;
+	// `declare` keeps this type-only: a plain field declaration emits an own
+	// property initialised to undefined, which shadows the prototype method a
+	// subclass defines. Bit us when vitest 4 raised its class-field semantics.
+	declare onExternalSettingsChange?: () => void | Promise<void>;
 }
 
 /**

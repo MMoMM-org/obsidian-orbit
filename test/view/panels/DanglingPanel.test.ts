@@ -60,33 +60,41 @@ function makeMockService() {
 }
 
 function makeMockConfirmRewriteModal() {
-	return vi.fn().mockImplementation((_app: unknown, opts: { onConfirm: (name: string) => void; deleteSourceNote?: string }) => ({
-		// Mirror the real modal: the "Only in note" checkbox is pre-checked (true)
-		// whenever a source note is supplied (by-source grouping), and absent otherwise.
-		onlyInThisNote: opts.deleteSourceNote !== undefined,
-		open: vi.fn(() => {
-			// Simulate immediate confirm for testing
-			opts.onConfirm("NewName");
-		}),
-	}));
+	return vi.fn().mockImplementation(function (_app: unknown, opts: { onConfirm: (name: string) => void; deleteSourceNote?: string }) {
+		return {
+			// Mirror the real modal: the "Only in note" checkbox is pre-checked (true)
+			// whenever a source note is supplied (by-source grouping), and absent otherwise.
+			onlyInThisNote: opts.deleteSourceNote !== undefined,
+			open: vi.fn(() => {
+				// Simulate immediate confirm for testing
+				opts.onConfirm("NewName");
+			}),
+		};
+	});
 }
 
 function makeMockFolderPicker() {
-	return vi.fn().mockImplementation(() => ({
-		pickFolder: vi.fn(async () => ({ path: "Notes" })),
-	}));
+	return vi.fn().mockImplementation(function () {
+		return {
+			pickFolder: vi.fn(async () => ({ path: "Notes" })),
+		};
+	});
 }
 
 function makeMockNotePicker() {
-	return vi.fn().mockImplementation(() => ({
-		pickNote: vi.fn(async () => ({ path: "Notes/SomeNote.md" })),
-	}));
+	return vi.fn().mockImplementation(function () {
+		return {
+			pickNote: vi.fn(async () => ({ path: "Notes/SomeNote.md" })),
+		};
+	});
 }
 
 function makeMockRenameTargetPicker() {
-	return vi.fn().mockImplementation(() => ({
-		pick: vi.fn(async () => "PickedTarget"),
-	}));
+	return vi.fn().mockImplementation(function () {
+		return {
+			pick: vi.fn(async () => "PickedTarget"),
+		};
+	});
 }
 
 function makeMockCreateNote() {
@@ -724,12 +732,14 @@ describe("DanglingPanel inline actions", () => {
 		});
 
 		// Simulate the user unchecking "Only in note" before confirming.
-		deps.ConfirmRewriteModal = vi.fn().mockImplementation((_app: unknown, opts: { onConfirm: (name: string) => void }) => ({
-			onlyInThisNote: false,
-			open: vi.fn(function (this: { onlyInThisNote: boolean }) {
-				opts.onConfirm("NewName");
-			}),
-		})) as ReturnType<typeof makeMockConfirmRewriteModal>;
+		deps.ConfirmRewriteModal = vi.fn().mockImplementation(function (_app: unknown, opts: { onConfirm: (name: string) => void }) {
+			return {
+				onlyInThisNote: false,
+				open: vi.fn(function (this: { onlyInThisNote: boolean }) {
+					opts.onConfirm("NewName");
+				}),
+			};
+		}) as ReturnType<typeof makeMockConfirmRewriteModal>;
 
 		const panel = new DanglingPanel(deps);
 		const container = makeContainer();
